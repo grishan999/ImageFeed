@@ -29,7 +29,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="414" height="224"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" insetsLayoutMarginsFromSafeArea="NO" image="0" translatesAutoresizingMaskIntoConstraints="NO" id="2Yd-az-9To">
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" insetsLayoutMarginsFromSafeArea="NO" image="0" translatesAutoresizingMaskIntoConstraints="NO" id="2Yd-az-9To" userLabel="Cell Image">
                                                     <rect key="frame" x="16" y="4" width="382" height="216"/>
                                                     <color key="backgroundColor" name="YP Black"/>
                                                     <constraints>
@@ -47,7 +47,6 @@
                                                     <rect key="frame" x="354" y="4" width="44" height="44"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="44" id="3CF-AX-0Cj"/>
-                                                        <constraint firstAttribute="width" secondItem="oqI-O9-Pew" secondAttribute="height" multiplier="1:1" id="rhd-Oj-lUx"/>
                                                         <constraint firstAttribute="width" constant="44" id="wOz-Si-0ct"/>
                                                     </constraints>
                                                     <state key="normal" title="Button"/>
@@ -70,9 +69,14 @@
                                                 <constraint firstItem="2Yd-az-9To" firstAttribute="trailing" secondItem="JP7-z6-4nA" secondAttribute="trailing" constant="8" id="d4d-5C-TSa"/>
                                                 <constraint firstItem="2Yd-az-9To" firstAttribute="leading" secondItem="v7S-Ld-V5e" secondAttribute="leading" constant="16" id="ezG-of-eLx"/>
                                                 <constraint firstItem="2Yd-az-9To" firstAttribute="trailing" secondItem="oqI-O9-Pew" secondAttribute="trailing" id="lVG-SR-oCf"/>
-                                                <constraint firstAttribute="bottom" secondItem="JP7-z6-4nA" secondAttribute="bottom" constant="8" id="xaC-qP-iln"/>
+                                                <constraint firstItem="2Yd-az-9To" firstAttribute="bottom" secondItem="JP7-z6-4nA" secondAttribute="bottom" constant="4" id="xaC-qP-iln"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="cellImage" destination="2Yd-az-9To" id="jvU-xD-Jvs"/>
+                                            <outlet property="dateLabel" destination="JP7-z6-4nA" id="XcV-0v-nRj"/>
+                                            <outlet property="likeButton" destination="oqI-O9-Pew" id="SGd-Cf-BaB"/>
+                                        </connections>
                                     </tableViewCell>
                                 </prototypes>
                                 <connections>
