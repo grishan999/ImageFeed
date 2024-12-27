@@ -15,15 +15,15 @@ final class SingleImageViewController: UIViewController {
            }
        }
     
+    @IBOutlet weak var scrollView: UIScrollView!
     
     @IBAction private func didTapBackButton(_ sender: Any) {
         dismiss(animated: true, completion: nil)
     }
     
-    
+
     @IBOutlet private var imageView: UIImageView!
     
-    @IBOutlet private var scrollView: UIScrollView!
     
     override func viewDidLoad() {
             super.viewDidLoad()
