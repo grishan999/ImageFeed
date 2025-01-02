@@ -23,10 +23,10 @@ final class ProfileViewController: UIViewController {
         view.addSubview(profileImage)
         
         NSLayoutConstraint.activate ([
-        profileImage.heightAnchor.constraint(equalToConstant: 70),
-        profileImage.widthAnchor.constraint(equalToConstant: 70),
-        profileImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
-        profileImage.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            profileImage.heightAnchor.constraint(equalToConstant: 70),
+            profileImage.widthAnchor.constraint(equalToConstant: 70),
+            profileImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
+            profileImage.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
         ])
         
         //ExitButton
@@ -34,14 +34,14 @@ final class ProfileViewController: UIViewController {
         exitButton.translatesAutoresizingMaskIntoConstraints = false
         exitButton.addTarget(self, action: #selector(exitButtonTapped), for: .touchUpInside)
         view.addSubview(exitButton)
-       
+        
         
         NSLayoutConstraint.activate ([
             exitButton.heightAnchor.constraint(equalToConstant: 24),
             exitButton.widthAnchor.constraint(equalToConstant: 24),
             exitButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -26),
             exitButton.centerYAnchor.constraint(equalTo: profileImage.centerYAnchor)
-        
+            
         ])
         
         //NameLabel
@@ -55,6 +55,7 @@ final class ProfileViewController: UIViewController {
         NSLayoutConstraint.activate ([
             nameLabel.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 8),
             nameLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            nameLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
         ])
         
         //UserNameLabel
@@ -76,11 +77,14 @@ final class ProfileViewController: UIViewController {
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(descriptionLabel)
         
+        descriptionLabel.numberOfLines = 0
+        
         usernameLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         
         NSLayoutConstraint.activate ([
             descriptionLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: 8),
             descriptionLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            descriptionLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
         ])
     }
     
