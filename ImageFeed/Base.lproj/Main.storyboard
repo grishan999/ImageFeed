@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="fUq-Ha-35h">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="UQt-Mc-JHA">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
@@ -9,6 +9,57 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
+        <!--Auth View Controller-->
+        <scene sceneID="0Ez-FX-aeK">
+            <objects>
+                <viewController id="UQt-Mc-JHA" userLabel="Auth View Controller" customClass="AuthViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Pke-ui-Nn1">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Logo_of_Unsplash" translatesAutoresizingMaskIntoConstraints="NO" id="hhw-Jq-pPM" userLabel="auth_screen_logo">
+                                <rect key="frame" x="177" y="418" width="60" height="60"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="60" id="aQu-1P-jnm"/>
+                                    <constraint firstAttribute="width" constant="60" id="v4P-y0-eJF"/>
+                                </constraints>
+                            </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jsy-Pu-fXb" userLabel="Войти">
+                                <rect key="frame" x="16" y="724" width="382" height="48"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="48" id="WYV-0B-c3y"/>
+                                </constraints>
+                                <color key="tintColor" name="YP Black"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Войти">
+                                    <fontDescription key="titleFontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="17"/>
+                                </buttonConfiguration>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="16"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                </userDefinedRuntimeAttributes>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="oqT-wp-PoK"/>
+                        <color key="backgroundColor" name="YP Black"/>
+                        <constraints>
+                            <constraint firstItem="hhw-Jq-pPM" firstAttribute="centerY" secondItem="Pke-ui-Nn1" secondAttribute="centerY" id="4hw-va-EvB"/>
+                            <constraint firstItem="Jsy-Pu-fXb" firstAttribute="leading" secondItem="oqT-wp-PoK" secondAttribute="leading" constant="16" id="5QR-4M-cfY"/>
+                            <constraint firstItem="oqT-wp-PoK" firstAttribute="trailing" secondItem="Jsy-Pu-fXb" secondAttribute="trailing" constant="16" id="DLf-Mp-RE8"/>
+                            <constraint firstItem="Jsy-Pu-fXb" firstAttribute="centerX" secondItem="Pke-ui-Nn1" secondAttribute="centerX" id="E9v-Cj-aQt"/>
+                            <constraint firstItem="hhw-Jq-pPM" firstAttribute="centerX" secondItem="Pke-ui-Nn1" secondAttribute="centerX" id="IeA-bb-qSz"/>
+                            <constraint firstItem="oqT-wp-PoK" firstAttribute="bottom" secondItem="Jsy-Pu-fXb" secondAttribute="bottom" constant="90" id="NtZ-LQ-fer"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Title" id="2so-p8-SGf" userLabel="Navigation Item"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="a0b-y9-DQI" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1267" y="-311"/>
+        </scene>
         <!--ImageList-->
         <scene sceneID="tne-QT-ifu">
             <objects>
@@ -211,6 +262,7 @@
     <resources>
         <image name="0" width="1600" height="1059"/>
         <image name="Like Image" width="42" height="42"/>
+        <image name="Logo_of_Unsplash" width="60" height="60"/>
         <image name="nav_back_button_white" width="24" height="24"/>
         <image name="share_button" width="50" height="50"/>
         <image name="tab_editorial_active" width="30" height="30"/>
