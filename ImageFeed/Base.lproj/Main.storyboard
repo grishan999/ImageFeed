@@ -43,7 +43,7 @@
                                     <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <segue destination="99i-ze-NeH" kind="show" identifier="ShowWebView" id="3nq-Eo-OD3"/>
+                                    <segue destination="99i-ze-NeH" kind="presentation" identifier="ShowWebView" modalPresentationStyle="fullScreen" id="3nq-Eo-OD3"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -73,25 +73,47 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8C5-a9-yKa">
-                                <rect key="frame" x="0.0" y="92" width="414" height="804"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                                 <color key="backgroundColor" name="YP White"/>
                                 <wkWebViewConfiguration key="configuration">
                                     <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
                                     <wkPreferences key="preferences"/>
                                 </wkWebViewConfiguration>
                             </wkWebView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lLb-bb-ClT">
+                                <rect key="frame" x="0.0" y="0.0" width="64" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="64" id="UX2-9Z-666"/>
+                                    <constraint firstAttribute="height" constant="44" id="wyE-Il-w0O"/>
+                                </constraints>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" image="nav_back_button"/>
+                                <connections>
+                                    <action selector="didTapBackButton:" destination="99i-ze-NeH" eventType="touchUpInside" id="mPo-uX-gxn"/>
+                                </connections>
+                            </button>
+                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="x9e-hk-TWN">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="4"/>
+                                <color key="progressTintColor" name="YP Black"/>
+                            </progressView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="z2O-At-QCF"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="lLb-bb-ClT" firstAttribute="leading" secondItem="z2O-At-QCF" secondAttribute="leading" id="aBH-qU-Xs5"/>
+                            <constraint firstItem="z2O-At-QCF" firstAttribute="trailing" secondItem="x9e-hk-TWN" secondAttribute="trailing" id="gdo-ox-kXO"/>
                             <constraint firstItem="8C5-a9-yKa" firstAttribute="leading" secondItem="AtC-c5-aNx" secondAttribute="leading" id="jVw-CZ-LfL"/>
+                            <constraint firstItem="lLb-bb-ClT" firstAttribute="top" secondItem="z2O-At-QCF" secondAttribute="top" id="k7T-H9-0E8"/>
                             <constraint firstAttribute="trailing" secondItem="8C5-a9-yKa" secondAttribute="trailing" id="kWn-R5-Ahb"/>
                             <constraint firstItem="8C5-a9-yKa" firstAttribute="top" secondItem="z2O-At-QCF" secondAttribute="top" id="n7Q-T6-guB"/>
+                            <constraint firstItem="x9e-hk-TWN" firstAttribute="leading" secondItem="z2O-At-QCF" secondAttribute="leading" id="tAl-FK-JJz"/>
                             <constraint firstAttribute="bottom" secondItem="8C5-a9-yKa" secondAttribute="bottom" id="uwm-wm-waB"/>
+                            <constraint firstItem="x9e-hk-TWN" firstAttribute="top" secondItem="z2O-At-QCF" secondAttribute="top" id="zRR-mH-isC"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="bJq-cg-V1z"/>
                     <connections>
+                        <outlet property="progressView" destination="x9e-hk-TWN" id="H1x-fZ-e5K"/>
                         <outlet property="webView" destination="8C5-a9-yKa" id="3PH-DR-uWx"/>
                     </connections>
                 </viewController>
@@ -320,6 +342,7 @@
         <image name="0" width="1600" height="1059"/>
         <image name="Like Image" width="42" height="42"/>
         <image name="auth_screen_logo" width="60" height="60"/>
+        <image name="nav_back_button" width="24" height="24"/>
         <image name="nav_back_button_white" width="24" height="24"/>
         <image name="share_button" width="50" height="50"/>
         <image name="tab_editorial_active" width="30" height="30"/>
