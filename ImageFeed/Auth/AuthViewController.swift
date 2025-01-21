@@ -7,8 +7,14 @@
 
 import UIKit
 
+protocol AuthViewControllerDelegate: AnyObject {
+    func didAuthenticate(_ vc: AuthViewController)
+}
+
 final class AuthViewController: UIViewController {
     
+    weak var delegate: AuthViewControllerDelegate?
+    private let oauthService = OAuth2Service()
     
     private let showWebViewSegueIdentifier = "ShowWebView"
     
@@ -19,7 +25,7 @@ final class AuthViewController: UIViewController {
         navigationItem.backBarButtonItem?.tintColor = UIColor(named: "ypBlack")
     }
     
-        override func viewDidLoad() {
+    override func viewDidLoad() {
         super.viewDidLoad()
         
         configureBackButton()
@@ -42,24 +48,38 @@ final class AuthViewController: UIViewController {
 
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-        dismiss(animated: true) { [weak self] in
+        vc.dismiss(animated: true)
+        
+        // Вызываем fetchOAuthToken
+        oauthService.fetchOAuthToken(code) { [weak self] result in
             guard let self = self else { return }
             
-            let oauthService = OAuth2Service()
-            oauthService.fetchOAuthToken(code) { result in
-                switch result {
-                case .success(let token):
-                    print("Successfully obtained token: \(token)")
-        
-                case .failure(let error):
-                    print("Failed to fetch token: \(error)")
+            switch result {
+            case .success(let token):
+                print("Token received: \(token)")
                 
+                DispatchQueue.main.async {
+                    self.delegate?.didAuthenticate(self)
+                }
+                
+            case .failure(let error):
+                print("Authorization error: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    let alert = UIAlertController(
+                        title: "Authorization Failed",
+                        message: "Unable to fetch the token. Please try again.",
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: "Retry", style: .default))
+                    self.present(alert, animated: true)
                 }
             }
         }
     }
     
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
-        dismiss(animated: true, completion: nil)
+        dismiss(animated: true)
     }
 }
+
+
