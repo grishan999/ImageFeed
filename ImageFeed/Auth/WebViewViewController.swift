@@ -33,9 +33,25 @@ final class WebViewViewController: UIViewController {
         
     }
     
+    func makeOAuthTokenRequest(code: String) -> URLRequest {
+        let baseURL = URL(string: "https://unsplash.com")!
+        let url = URL(
+            string: "/oauth/token"
+            + "?client_id=\(Constants.accessKey)"
+            + "&&client_secret=\(Constants.secretKey)"
+            + "&&redirect_uri=\(Constants.redirectURI)"
+            + "&&code=\(code)"
+            + "&&grant_type=authorization_code",
+            relativeTo: baseURL
+        )!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        return request
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-    
+        
         webView.addObserver(
             self,
             forKeyPath: #keyPath(WKWebView.estimatedProgress),
@@ -61,7 +77,7 @@ final class WebViewViewController: UIViewController {
             super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
         }
     }
-
+    
     private func updateProgress() {
         progressView.progress = Float(webView.estimatedProgress)
         progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
@@ -87,13 +103,9 @@ final class WebViewViewController: UIViewController {
         webView.load(request)
     }
     
-   
-    
-    
     @IBAction func didTapBackButton(_ sender: Any) {
         delegate?.webViewViewControllerDidCancel(self)
     }
-    
     
 }
 
@@ -124,5 +136,4 @@ extension WebViewViewController: WKNavigationDelegate {
             return nil
         }
     }
-    
 }
