@@ -14,7 +14,6 @@ protocol AuthViewControllerDelegate: AnyObject {
 final class AuthViewController: UIViewController {
     
     weak var delegate: AuthViewControllerDelegate?
-    private let oauthService = OAuth2Service()
     
     private let showWebViewSegueIdentifier = "ShowWebView"
     
@@ -36,7 +35,7 @@ final class AuthViewController: UIViewController {
             guard
                 let webViewViewController = segue.destination as? WebViewViewController
             else {
-                assertionFailure("Failed to prepare for \(showWebViewSegueIdentifier)")
+                print ("Failed to prepare for \(showWebViewSegueIdentifier)")
                 return
             }
             webViewViewController.delegate = self
@@ -48,29 +47,32 @@ final class AuthViewController: UIViewController {
 
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-        vc.dismiss(animated: true)
+        print("Received authorization code: \(code)")
         
-        // Вызываем fetchOAuthToken
-        oauthService.fetchOAuthToken(code) { [weak self] result in
-            guard let self = self else { return }
-            
+        OAuth2Service.shared.fetchOAuthToken(code) { result in
             switch result {
             case .success(let token):
-                print("Token received: \(token)")
+                print("Successfully retrieved token: \(token)")
                 
+                // Сохранение токена в UserDefaults
+                let tokenStorage = OAuth2TokenStorage()
+                tokenStorage.token = token
+                print("Token saved successfully.")
+                
+                // Переход на следующий экран
                 DispatchQueue.main.async {
-                    self.delegate?.didAuthenticate(self)
+                    self.dismiss(animated: true)
                 }
                 
             case .failure(let error):
-                print("Authorization error: \(error.localizedDescription)")
+                print("Failed to retrieve token: \(error)")
+                
+                // Отображение ошибки пользователю
                 DispatchQueue.main.async {
-                    let alert = UIAlertController(
-                        title: "Authorization Failed",
-                        message: "Unable to fetch the token. Please try again.",
-                        preferredStyle: .alert
-                    )
-                    alert.addAction(UIAlertAction(title: "Retry", style: .default))
+                    let alert = UIAlertController(title: "Ошибка",
+                                                  message: "Не удалось авторизоваться. Попробуйте ещё раз.",
+                                                  preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .default))
                     self.present(alert, animated: true)
                 }
             }
@@ -81,5 +83,3 @@ extension AuthViewController: WebViewViewControllerDelegate {
         dismiss(animated: true)
     }
 }
-
-

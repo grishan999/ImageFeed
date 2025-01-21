@@ -24,7 +24,7 @@ final class SplashViewController: UIViewController {
     private func switchToTabBarController() {
         
         guard let window = UIApplication.shared.windows.first else {
-            assertionFailure("Invalid window configuration")
+            print ("Invalid window configuration")
             return
         }
         
@@ -44,7 +44,7 @@ extension SplashViewController {
                 let navigationController = segue.destination as? UINavigationController,
                 let viewController = navigationController.viewControllers[0] as? AuthViewController
             else {
-                assertionFailure("Failed to prepare for \(showAuthenticationScreenSegueIdentifier)")
+                print ("Failed to prepare for \(showAuthenticationScreenSegueIdentifier)")
                 return
             }
             
@@ -58,10 +58,12 @@ extension SplashViewController {
 
 extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
-        // Уведомляем, что авторизация завершена, и переходим к следующему экрану
+        
         vc.dismiss(animated: true) {
+            
             print("User authenticated. Proceeding to the next screen.")
-            // Переход к главному экрану приложения или обновление состояния
+            self.switchToTabBarController()
+            
         }
     }
 }
