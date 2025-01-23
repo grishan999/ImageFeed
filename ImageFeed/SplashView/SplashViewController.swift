@@ -11,11 +11,16 @@ final class SplashViewController: UIViewController {
     private let showAuthenticationScreenSegueIdentifier = "ShowAuthenticationScreen"
     private let storage = OAuth2TokenStorage()
     
+    private var isAuthorized: Bool {
+        return storage.token != nil
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        if let token = storage.token {
-            
+
+        if storage.token != nil {
+            print("User is already authorized.")
+            switchToTabBarController()
         } else {
             performSegue(withIdentifier: showAuthenticationScreenSegueIdentifier, sender: nil)
         }
@@ -32,6 +37,7 @@ final class SplashViewController: UIViewController {
             .instantiateViewController(withIdentifier: "TabBarViewController")
         
         window.rootViewController = tabBarController
+        window.makeKeyAndVisible()
     }
 }
 
@@ -57,13 +63,20 @@ extension SplashViewController {
 }
 
 extension SplashViewController: AuthViewControllerDelegate {
-    func didAuthenticate(_ vc: AuthViewController) {
-        
+    func didAuthenticate(_ vc: AuthViewController, withCode code: String) {
         vc.dismiss(animated: true) {
-            
-            print("User authenticated. Proceeding to the next screen.")
-            self.switchToTabBarController()
-            
+            OAuth2Service.shared.fetchOAuthToken(code) { [weak self] result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let token):
+                        self?.storage.token = token
+                        print("Token successfully saved: \(token)")
+                        self?.switchToTabBarController()
+                    case .failure(let error):
+                        print("Failed to fetch token: \(error)")
+                    }
+                }
+            }
         }
     }
 }

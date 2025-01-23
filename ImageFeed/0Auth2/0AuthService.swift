@@ -28,6 +28,8 @@ final class OAuth2Service {
             return
         }
         
+        
+        
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -40,8 +42,6 @@ final class OAuth2Service {
             "code": code,
             "grant_type": "authorization_code"
         ]
-        
-        request.httpBody = try? JSONSerialization.data(withJSONObject: parameters, options: [])
         
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: [])
@@ -69,6 +69,7 @@ final class OAuth2Service {
                 }
                 return
             }
+            
             
             print("Response received. Decoding data...")
             do {

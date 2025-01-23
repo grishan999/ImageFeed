@@ -8,7 +8,7 @@
 import UIKit
 
 protocol AuthViewControllerDelegate: AnyObject {
-    func didAuthenticate(_ vc: AuthViewController)
+    func didAuthenticate(_ vc: AuthViewController, withCode code: String)
 }
 
 final class AuthViewController: UIViewController {
@@ -47,36 +47,7 @@ final class AuthViewController: UIViewController {
 
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-        print("Received authorization code: \(code)")
-        
-        OAuth2Service.shared.fetchOAuthToken(code) { result in
-            switch result {
-            case .success(let token):
-                print("Successfully retrieved token: \(token)")
-                
-                // Сохранение токена в UserDefaults
-                let tokenStorage = OAuth2TokenStorage()
-                tokenStorage.token = token
-                print("Token saved successfully.")
-                
-                // Переход на следующий экран
-                DispatchQueue.main.async {
-                    self.dismiss(animated: true)
-                }
-                
-            case .failure(let error):
-                print("Failed to retrieve token: \(error)")
-                
-                // Отображение ошибки пользователю
-                DispatchQueue.main.async {
-                    let alert = UIAlertController(title: "Ошибка",
-                                                  message: "Не удалось авторизоваться. Попробуйте ещё раз.",
-                                                  preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .default))
-                    self.present(alert, animated: true)
-                }
-            }
-        }
+        delegate?.didAuthenticate(self, withCode: code)
     }
     
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
