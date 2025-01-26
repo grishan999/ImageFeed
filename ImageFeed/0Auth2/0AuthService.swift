@@ -24,11 +24,13 @@ final class OAuth2Service {
     
     func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
         guard let url = URL(string: "https://unsplash.com/oauth/token") else {
+            let errorMessage = "Error: Failed to create URL from string 'https://unsplash.com/oauth/token'."
+            print(errorMessage)
             completion(.failure(NetworkError.urlSessionError))
             return
         }
         
-        
+        print("URL successfully created: \(url)")
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -70,8 +72,8 @@ final class OAuth2Service {
                 return
             }
             
-            
             print("Response received. Decoding data...")
+            
             do {
                 let decoder = JSONDecoder()
                 let responseBody = try decoder.decode(OAuthTokenResponseBody.self, from: data)
