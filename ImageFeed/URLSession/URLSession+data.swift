@@ -13,6 +13,7 @@ enum NetworkError: Error {
     case urlSessionError
     case invalidResponse
     case requestCancelled
+    case missingToken
 }
 
 extension URLSession {

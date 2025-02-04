@@ -1,62 +1,55 @@
 //
-//  ProfileService.swift
+//  ProfileImageService.swift
 //  ImageFeed
 //
-//  Created by Ilya Grishanov on 03.02.2025.
+//  Created by Ilya Grishanov on 04.02.2025.
 //
 
 import UIKit
 
-struct ProfileResult: Codable {
-    let username: String
-    let name: String?
-    let firstName: String?
-    let lastName: String?
-    let bio: String?
+struct UserResult: Codable {
+    struct ProfileImages: Codable {
+        let small: String
+    }
+    
+    let profileImage: ProfileImages
     
     enum CodingKeys: String, CodingKey {
-        case username
-        case name
-        case firstName = "first_name"
-        case lastName = "last_name"
-        case bio
+        case profileImage = "profile_image"
     }
 }
 
-struct Profile {
-    let username: String
-    let name: String
-    let loginName: String
-    let bio: String?
-    
-    init (profileResult: ProfileResult) {
-        self.username = profileResult.username
-        self.name = [profileResult.firstName, profileResult.lastName] .compactMap { $0 }.joined(separator: " ")
-        self.loginName = "@\(profileResult.username)"
-        self.bio = profileResult.bio
-    }
-}
 
-final class ProfileService {
+final class ProfileImageService {
     
+    private init() {}
+    
+    static let shared = ProfileImageService()
+    private(set) var avatarURL: String? = nil
     private var currentTask: URLSessionTask?
-    static let shared = ProfileService()
-    private(set) var profile: Profile? = nil
     
-    //создаем auth request
-    func createAuthRequest (url: URL, token: String) -> URLRequest? {
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        return request
-    }
-    
-    func fetchProfile(token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
+    func fetchProfileImageURL(username: String, _ completion: @escaping (Result<String, Error>) -> Void) {
         currentTask?.cancel()
         
+        
+        // получаем токен с хранилища
+        guard let token = OAuth2TokenStorage().token else {
+            let errorMessage = "Error: Failed to retrieve token from storage."
+            print(errorMessage)
+            completion(.failure(NetworkError.missingToken)) // Изменил тип ошибки
+            return
+        }
+        
         // создание урл
-        guard let url = URL(string: "https://api.unsplash.com/me") else {
-            let errorMessage = "Error: Failed to create URL from string 'https://api.unsplash.com/me'."
+        guard let urlComponents = URLComponents(string: "https://api.unsplash.com/users/\(username)") else {
+            let errorMessage = "Error: Failed to create URLComponents."
+            print(errorMessage)
+            completion(.failure(NetworkError.urlSessionError))
+            return
+        }
+        
+        guard let url = urlComponents.url else {
+            let errorMessage = "Error: Failed to create URL."
             print(errorMessage)
             completion(.failure(NetworkError.urlSessionError))
             return
@@ -65,12 +58,10 @@ final class ProfileService {
         print("URL successfully created: \(url)")
         
         // создание реквест
-        guard let request = createAuthRequest(url: url, token: token) else {
-            let errorMessage = "Error: Failed to create URLRequest."
-            print(errorMessage)
-            completion(.failure(NetworkError.requestCancelled))
-            return
-        }
+        var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    
         
         // создаем новый таск для запроса
         let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
@@ -108,14 +99,14 @@ final class ProfileService {
             // декодинг
             do {
                 let decoder = JSONDecoder()
-                let profileResult = try decoder.decode(ProfileResult.self, from: data)
-                let profile = Profile(profileResult: profileResult)
+                let userResult = try decoder.decode(UserResult.self, from: data)
                 
-                self.profile = profile
+                // Сохраняем урл аватарки
+                self.avatarURL = userResult.profileImage.small
                 
                 DispatchQueue.main.async {
-                    completion(.success(profile))
-                    print("Completion called with success")
+                    completion(.success(userResult.profileImage.small))
+                    print("Avatar URL fetched successfully: \(userResult.profileImage.small)")
                 }
             } catch {
                 print("Decoding error: \(error)")
@@ -125,10 +116,8 @@ final class ProfileService {
                 }
             }
         }
-
-        self.currentTask = task // Сохраняем ссылку на текущий запрос
         
+        self.currentTask = task // Сохраняем ссылку на текущий запрос
         task.resume() // Запускаем задачу
     }
-    
 }

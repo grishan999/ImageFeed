@@ -10,6 +10,7 @@ final class SplashViewController: UIViewController {
     
     private let showAuthenticationScreenSegueIdentifier = "ShowAuthenticationScreen"
     private let storage = OAuth2TokenStorage()
+    private let profileService = ProfileService()
     
     private var isAuthorized: Bool {
         return storage.token != nil
@@ -17,14 +18,22 @@ final class SplashViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-
-        if storage.token != nil {
+        
+        if isAuthorized {
             print("User is already authorized.")
-            switchToTabBarController()
+            
+            // Если токен есть
+            guard let token = storage.token else {
+                print("Error: Token is missing.")
+                return
+            }
+            
+            fetchProfile(token: token) // Добавляем вызов
         } else {
             performSegue(withIdentifier: showAuthenticationScreenSegueIdentifier, sender: nil)
         }
     }
+    
     
     private func switchToTabBarController() {
         
@@ -71,11 +80,55 @@ extension SplashViewController: AuthViewControllerDelegate {
                     case .success(let token):
                         self?.storage.token = token
                         print("Token successfully saved: \(token)")
-                        self?.switchToTabBarController()
+                        
+                        if let token = self?.storage.token {
+                            self?.fetchProfile(token: token)
+                        }
+                        
                     case .failure(let error):
                         print("Failed to fetch token: \(error)")
                     }
                 }
+            }
+        }
+    }
+}
+
+extension SplashViewController {
+    private func fetchProfile(token: String) {
+        UIBlockingProgressHUD.show()
+        
+        profileService.fetchProfile(token: token) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let profile):
+                print("Profile fetched successfully.")
+                
+                // получаем username из профиля
+                let username = profile.username
+                
+                // запуск запроса аватарки
+                ProfileImageService.shared.fetchProfileImageURL(username: username) { _ in
+                    print("Avatar URL request started for user: \(username)")
+                }
+                
+                self.switchToTabBarController()
+                
+            case .failure(let fetchError):
+                print("Failed to fetch profile: \(fetchError)")
+                
+                let alert = UIAlertController(
+                    title: "Ошибка",
+                    message: "Не удалось получить данные профиля. Попробуйте войти снова.",
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(alert, animated: true)
+                
+                self.storage.token = nil
+                self.performSegue(withIdentifier: self.showAuthenticationScreenSegueIdentifier, sender: nil)
             }
         }
     }
