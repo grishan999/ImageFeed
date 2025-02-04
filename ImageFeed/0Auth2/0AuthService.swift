@@ -15,14 +15,18 @@ struct OAuthTokenResponseBody: Decodable {
     }
 }
 
+
 final class OAuth2Service {
     
     static let shared = OAuth2Service()
     private init() {}
     
     private let tokenStorage = OAuth2TokenStorage()
+    private var currentTask: URLSessionTask?
     
     func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
+        currentTask?.cancel()
+        
         guard let url = URL(string: "https://unsplash.com/oauth/token") else {
             let errorMessage = "Error: Failed to create URL from string 'https://unsplash.com/oauth/token'."
             print(errorMessage)
@@ -54,6 +58,16 @@ final class OAuth2Service {
         }
         
         let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            
+            self?.currentTask = nil
+            
+            if let error = error as? URLError, error.code == .cancelled {
+                DispatchQueue.main.async {
+                    completion(.failure(NetworkError.requestCancelled)) // Добавляем новую ошибку
+                }
+                return
+            }
+            
             if let error = error {
                 print("Network error: \(error)")
                 DispatchQueue.main.async {
@@ -74,6 +88,7 @@ final class OAuth2Service {
             
             print("Response received. Decoding data...")
             
+            //декодирование токена
             do {
                 let decoder = JSONDecoder()
                 let responseBody = try decoder.decode(OAuthTokenResponseBody.self, from: data)
@@ -93,6 +108,8 @@ final class OAuth2Service {
                 }
             }
         }
+        currentTask = task
         task.resume()
     }
 }
+

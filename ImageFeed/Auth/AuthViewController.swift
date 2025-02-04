@@ -17,6 +17,7 @@ final class AuthViewController: UIViewController {
     weak var delegate: AuthViewControllerDelegate?
     
     private let showWebViewSegueIdentifier = "ShowWebView"
+    private var isFetchingToken: Bool = false
     
     private func configureBackButton() {
         navigationController?.navigationBar.backIndicatorImage = UIImage(named: "nav_back_button")
@@ -49,20 +50,30 @@ final class AuthViewController: UIViewController {
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         
-        ProgressHUD.show()
+        guard !isFetchingToken else { return }
+        
+        DispatchQueue.main.async {
+            self.isFetchingToken = true
+        }
+        
+        UIBlockingProgressHUD.show()
+        
         OAuth2Service.shared.fetchOAuthToken(code) { [weak self] result in
             guard let self = self else { return }
-            ProgressHUD.dismiss()
             
-            switch result {
-            case .success(let token):
-                self.delegate?.didAuthenticate(self, withCode: code)
-                self.dismiss(animated: true)
-            case .failure(let error):
-                print("Error fetching token: \(error)")
-                break
+            DispatchQueue.main.async {
+                UIBlockingProgressHUD.dismiss()
+                self.isFetchingToken = false
+                
+                switch result {
+                case .success(let token):
+                    self.delegate?.didAuthenticate(self, withCode: code)
+                    self.dismiss(animated: true)
+                case .failure(let error):
+                    print("Error fetching token: \(error)")
+                    
+                }
             }
-            
         }
     }
     

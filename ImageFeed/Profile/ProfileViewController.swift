@@ -8,14 +8,33 @@
 import UIKit
 
 final class ProfileViewController: UIViewController {
+    
+    let profileImage = UIImageView()
+    let exitButton = UIButton()
+    let nameLabel = UILabel()
+    let usernameLabel = UILabel()
+    let descriptionLabel = UILabel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let profileImage = UIImageView()
-        let exitButton = UIButton()
-        let nameLabel = UILabel()
-        let usernameLabel = UILabel()
-        let descriptionLabel = UILabel()
+        guard let token = OAuth2TokenStorage().token else {
+            print ("Error getting token")
+            return
+        }
+        
+        ProfileService().fetchProfile(token: token) { [weak self] result in
+                    switch result {
+                    case .success(let profile):
+                        DispatchQueue.main.async {
+                            self?.nameLabel.text = profile.name.isEmpty ? "No Name" : profile.name
+                            self?.usernameLabel.text = profile.loginName
+                            self?.descriptionLabel.text = profile.bio ?? "No Bio"
+                        }
+                    case .failure(let error):
+                        print("Error fetching profile: \(error)")
+                    }
+                }
         
         //ProfileImage
         profileImage.image = UIImage(named: "UserPhoto")
