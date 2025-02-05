@@ -23,6 +23,8 @@ struct UserResult: Codable {
 final class ProfileImageService {
     
     private init() {}
+    //новое имя нотификации
+    static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange") // добавление нотификации
     
     static let shared = ProfileImageService()
     private(set) var avatarURL: String? = nil
@@ -107,7 +109,16 @@ final class ProfileImageService {
                 DispatchQueue.main.async {
                     completion(.success(userResult.profileImage.small))
                     print("Avatar URL fetched successfully: \(userResult.profileImage.small)")
+                    
+                    //публикация нотификации
+                    NotificationCenter.default
+                        .post(
+                            name: ProfileImageService.didChangeNotification,
+                            object: self,
+                            userInfo: ["URL": self.avatarURL])
                 }
+                
+                
             } catch {
                 print("Decoding error: \(error)")
                 DispatchQueue.main.async {
@@ -119,5 +130,6 @@ final class ProfileImageService {
         
         self.currentTask = task // Сохраняем ссылку на текущий запрос
         task.resume() // Запускаем задачу
+        
     }
 }

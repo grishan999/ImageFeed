@@ -15,8 +15,22 @@ final class ProfileViewController: UIViewController {
     let usernameLabel = UILabel()
     let descriptionLabel = UILabel()
     
+    private var profileImageServiceObserver: NSObjectProtocol?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+    
+        //добавление обсервера для нотификаций
+        profileImageServiceObserver = NotificationCenter.default
+                    .addObserver(
+                        forName: ProfileImageService.didChangeNotification,
+                        object: nil,
+                        queue: .main
+                    ) { [weak self] _ in
+                        guard let self = self else { return }
+                        self.updateAvatar()
+                    }
+                updateAvatar()
         
         func updateUI(with profile: Profile) {
             nameLabel.text = profile.name.isEmpty ? "No Name" : profile.name
@@ -106,6 +120,15 @@ final class ProfileViewController: UIViewController {
                 descriptionLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             ])
         }
+    
+    
+    private func updateAvatar() {                                   // 8
+           guard
+               let profileImageURL = ProfileImageService.shared.avatarURL,
+               let url = URL(string: profileImageURL)
+           else { return }
+           // TODO [Sprint 11] Обновить аватар, используя Kingfisher
+       }
         
         @objc private func exitButtonTapped() {}
     }
