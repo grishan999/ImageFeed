@@ -56,7 +56,7 @@ final class ProfileService {
         
         // создание урл
         guard let url = URL(string: "https://api.unsplash.com/me") else {
-            let errorMessage = "Error: Failed to create URL from string 'https://api.unsplash.com/me'."
+            let errorMessage = "[fetchProfile]: NetworkError - can't create URL."
             print(errorMessage)
             completion(.failure(NetworkError.urlSessionError))
             return
@@ -66,69 +66,31 @@ final class ProfileService {
         
         // создание реквест
         guard let request = createAuthRequest(url: url, token: token) else {
-            let errorMessage = "Error: Failed to create URLRequest."
+            let errorMessage = "[fetchProfile]: NetworkError  - can't create URLRequest."
             print(errorMessage)
             completion(.failure(NetworkError.requestCancelled))
             return
         }
         
         // создаем новый таск для запроса
-        let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            guard let self = self else { return }
+        let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<ProfileResult, Error>) in
             
             // Очищаем ссылку на текущий запрос
-            self.currentTask = nil
+            self?.currentTask = nil
             
-            // Проверяем был ли запрос отменен
-            if let error = error as? URLError, error.code == .cancelled {
-                print("Request was cancelled.")
-                return
-            }
-            
-            // ошибка сети
-            if let error = error {
-                print("Network error: \(error)")
-                DispatchQueue.main.async {
-                    completion(.failure(error))
-                }
-                return
-            }
-            
-            // проверка статуса ответа
-            guard let httpResponse = response as? HTTPURLResponse,
-                  (200...299).contains(httpResponse.statusCode),
-                  let data = data else {
-                print("Error: Invalid HTTP response.")
-                DispatchQueue.main.async {
-                    completion(.failure(NetworkError.invalidResponse))
-                }
-                return
-            }
-            
-            // декодинг
-            do {
-                let decoder = JSONDecoder()
-                let profileResult = try decoder.decode(ProfileResult.self, from: data)
+            switch result {
+            case .success(let profileResult):
                 let profile = Profile(profileResult: profileResult)
-                
-                self.profile = profile
-                
-                DispatchQueue.main.async {
-                    completion(.success(profile))
-                    print("Completion called with success")
-                }
-            } catch {
-                print("Decoding error: \(error)")
-                DispatchQueue.main.async {
-                    completion(.failure(error))
-                    print("Completion called with decoding error.")
-                }
+                self?.profile = profile
+                completion(.success(profile))
+            case .failure(let error):
+                let errorMessage = "[fetchProfile]: NetworkError - \(error.localizedDescription)"
+                print (errorMessage)
+                completion(.failure(error))
             }
         }
-
-        self.currentTask = task // Сохраняем ссылку на текущий запрос
         
-        task.resume() // Запускаем задачу
+        currentTask = task // сохраняем ссылку на текущий запрос
+        task.resume() // запускаем задачу
     }
-    
 }

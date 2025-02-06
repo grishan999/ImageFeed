@@ -36,7 +36,7 @@ final class ProfileImageService {
         
         // получаем токен с хранилища
         guard let token = OAuth2TokenStorage().token else {
-            let errorMessage = "Error: Failed to retrieve token from storage."
+            let errorMessage = "[fetchProfileImageURL]: MissingTokenError - token dismiss"
             print(errorMessage)
             completion(.failure(NetworkError.missingToken)) // Изменил тип ошибки
             return
@@ -44,14 +44,14 @@ final class ProfileImageService {
         
         // создание урл
         guard let urlComponents = URLComponents(string: "https://api.unsplash.com/users/\(username)") else {
-            let errorMessage = "Error: Failed to create URLComponents."
+            let errorMessage = "[fetchProfileImageURL]: MissingTokenError - can't create URLComponents"
             print(errorMessage)
             completion(.failure(NetworkError.urlSessionError))
             return
         }
         
         guard let url = urlComponents.url else {
-            let errorMessage = "Error: Failed to create URL."
+            let errorMessage = "[fetchProfileImageURL]: NetworkError url - can't create URL"
             print(errorMessage)
             completion(.failure(NetworkError.urlSessionError))
             return
@@ -61,75 +61,36 @@ final class ProfileImageService {
         
         // создание реквест
         var request = URLRequest(url: url)
-            request.httpMethod = "GET"
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-    
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
         
         // создаем новый таск для запроса
-        let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            guard let self = self else { return }
+        let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<UserResult, Error>) in
+            self?.currentTask = nil
             
-            // Очищаем ссылку на текущий запрос
-            self.currentTask = nil
-            
-            // Проверяем был ли запрос отменен
-            if let error = error as? URLError, error.code == .cancelled {
-                print("Request was cancelled.")
-                return
-            }
-            
-            // ошибка сети
-            if let error = error {
-                print("Network error: \(error)")
-                DispatchQueue.main.async {
-                    completion(.failure(error))
-                }
-                return
-            }
-            
-            // проверка статуса ответа
-            guard let httpResponse = response as? HTTPURLResponse,
-                  (200...299).contains(httpResponse.statusCode),
-                  let data = data else {
-                print("Error: Invalid HTTP response.")
-                DispatchQueue.main.async {
-                    completion(.failure(NetworkError.invalidResponse))
-                }
-                return
-            }
-            
-            // декодинг
-            do {
-                let decoder = JSONDecoder()
-                let userResult = try decoder.decode(UserResult.self, from: data)
-                
-                // Сохраняем урл аватарки
-                self.avatarURL = userResult.profileImage.small
+            switch result {
+            case .success(let userResult):
+                let avatarURL = userResult.profileImage.small
+                self?.avatarURL = avatarURL
                 
                 DispatchQueue.main.async {
-                    completion(.success(userResult.profileImage.small))
-                    print("Avatar URL fetched successfully: \(userResult.profileImage.small)")
-                    
-                    //публикация нотификации
-                    NotificationCenter.default
-                        .post(
-                            name: ProfileImageService.didChangeNotification,
-                            object: self,
-                            userInfo: ["URL": self.avatarURL])
+                    completion(.success(avatarURL))
+                    NotificationCenter.default.post(
+                        name: ProfileImageService.didChangeNotification,
+                        object: self,
+                        userInfo: ["URL": avatarURL]
+                    )
                 }
                 
-                
-            } catch {
-                print("Decoding error: \(error)")
-                DispatchQueue.main.async {
-                    completion(.failure(error))
-                    print("Completion called with decoding error.")
-                }
+            case .failure(let error):
+                let errorMessage = "[fetchProfileImageURL]: NetworkError - \(error.localizedDescription)"
+                print (errorMessage)
+                completion(.failure(error))
             }
         }
         
-        self.currentTask = task // Сохраняем ссылку на текущий запрос
-        task.resume() // Запускаем задачу
-        
+        self.currentTask = task // сохраняем ссылку на текущий запрос
+        task.resume() // запускаем задачу
     }
 }

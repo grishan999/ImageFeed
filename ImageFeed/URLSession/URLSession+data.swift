@@ -17,29 +17,46 @@ enum NetworkError: Error {
 }
 
 extension URLSession {
-    func data(
+    func objectTask<T: Decodable>(
         for request: URLRequest,
-        completion: @escaping (Result<Data, Error>) -> Void
+        completion: @escaping (Result<T, Error>) -> Void
     ) -> URLSessionTask {
-        let fulfillCompletionOnTheMainThread: (Result<Data, Error>) -> Void = { result in
-            DispatchQueue.main.async {
-                completion(result)
+        let decoder = JSONDecoder()
+        
+        let task = dataTask(with: request) { data, response, error in
+            
+            func fulfillCompletionOnMainThread(_ result: Result<T, Error>) {
+                DispatchQueue.main.async {
+                    completion(result)
+                }
+            }
+            
+            if let error = error {
+                print("[objectTask]: URLRequestError - \(error.localizedDescription)")
+                fulfillCompletionOnMainThread(.failure(NetworkError.urlRequestError(error)))
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                print("[objectTask]: NetworkError - отсутствует HTTP-ответ")
+                fulfillCompletionOnMainThread(.failure(NetworkError.invalidResponse))
+                return
+            }
+            
+            guard (200...299).contains(httpResponse.statusCode), let data = data else {
+                print("[objectTask]: HTTPStatusCodeError - Код: \(httpResponse.statusCode), Данные: \(String(data: data ?? Data(), encoding: .utf8) ?? "Нет данных")")
+                fulfillCompletionOnMainThread(.failure(NetworkError.httpStatusCode(httpResponse.statusCode)))
+                return
+            }
+            
+            do {
+                let decodedObject = try decoder.decode(T.self, from: data)
+                fulfillCompletionOnMainThread(.success(decodedObject))
+            } catch {
+                print("[objectTask]: DecodingError - \(error.localizedDescription), Данные: \(String(data: data, encoding: .utf8) ?? "Нет данных")")
+                fulfillCompletionOnMainThread(.failure(error))
             }
         }
-        
-        let task = dataTask(with: request, completionHandler: { data, response, error in
-            if let data = data, let response = response, let statusCode = (response as? HTTPURLResponse)?.statusCode {
-                if 200 ..< 300 ~= statusCode {
-                    fulfillCompletionOnTheMainThread(.success(data))
-                } else {
-                    fulfillCompletionOnTheMainThread(.failure(NetworkError.httpStatusCode(statusCode)))
-                }
-            } else if let error = error {
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.urlRequestError(error)))
-            } else {
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.urlSessionError))
-            }
-        })
         
         return task
     }
