@@ -38,7 +38,7 @@ final class ProfileImageService {
         guard let token = OAuth2TokenStorage().token else {
             let errorMessage = "[fetchProfileImageURL]: MissingTokenError - token dismiss"
             print(errorMessage)
-            completion(.failure(NetworkError.missingToken)) // Изменил тип ошибки
+            completion(.failure(NetworkError.missingToken))
             return
         }
         
