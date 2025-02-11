@@ -284,6 +284,7 @@
         <!--Splash View Controller-->
         <scene sceneID="MJd-HP-ErJ">
             <objects>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="jrN-dJ-hrg" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <viewController id="Xvg-YP-L7Z" customClass="SplashViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="O8d-Xo-ST5">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
@@ -304,26 +305,8 @@
                         <segue destination="Rtm-gP-6p4" kind="presentation" identifier="ShowAuthenticationScreen" modalPresentationStyle="fullScreen" id="SQE-g7-ADx"/>
                     </connections>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="jrN-dJ-hrg" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-2148" y="-152"/>
-        </scene>
-        <!--Tab Bar Controller-->
-        <scene sceneID="WeU-Cb-KAk">
-            <objects>
-                <tabBarController restorationIdentifier="TabBarViewController" storyboardIdentifier="TabBarViewController" id="fUq-Ha-35h" customClass="TabBarController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
-                    <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="xdb-YA-0Uq">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="49"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <tabBarAppearance key="standardAppearance">
-                            <color key="backgroundColor" name="YP Black"/>
-                        </tabBarAppearance>
-                    </tabBar>
-                </tabBarController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="YLi-qd-UKw" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-994" y="397"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="WVC-HD-vZ7">

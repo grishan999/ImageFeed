@@ -19,7 +19,6 @@ struct UserResult: Codable {
     }
 }
 
-
 final class ProfileImageService {
     
     private init() {}
@@ -32,7 +31,6 @@ final class ProfileImageService {
     
     func fetchProfileImageURL(username: String, _ completion: @escaping (Result<String, Error>) -> Void) {
         currentTask?.cancel()
-        
         
         // получаем токен с хранилища
         guard let token = OAuth2TokenStorage().token else {
@@ -63,7 +61,6 @@ final class ProfileImageService {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
         
         // создаем новый таск для запроса
         let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<UserResult, Error>) in

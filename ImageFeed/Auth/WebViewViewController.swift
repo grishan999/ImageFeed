@@ -29,12 +29,12 @@ final class WebViewViewController: UIViewController {
         super.viewDidLoad()
         
         estimatedProgressObservation = webView.observe(
-                    \.estimatedProgress,
-                    options: [],
-                    changeHandler: { [weak self] _, _ in
-                        guard let self = self else { return }
-                        self.updateProgress()
-                    })
+            \.estimatedProgress,
+             options: [],
+             changeHandler: { [weak self] _, _ in
+                 guard let self = self else { return }
+                 self.updateProgress()
+             })
         
         loadAuthView()
         
@@ -48,14 +48,14 @@ final class WebViewViewController: UIViewController {
             return nil
         }
         print(" Base URL successfully created: \(baseURL)")
-
+        
         let tokenPath = "/oauth/token"
         guard var urlComponents = URLComponents(string: baseURL.absoluteString + tokenPath) else {
             print("Error: Unable to create URL components")
             return nil
         }
         print("URLComponents successfully created: \(urlComponents)")
-
+        
         urlComponents.queryItems = [
             URLQueryItem(name: "client_id", value: Constants.accessKey),
             URLQueryItem(name: "client_secret", value: Constants.secretKey),
@@ -64,7 +64,7 @@ final class WebViewViewController: UIViewController {
             URLQueryItem(name: "grant_type", value: "authorization_code")
         ]
         print("Query items successfully added: \(urlComponents.queryItems ?? [])")
-
+        
         guard let url = urlComponents.url else {
             print("Error: Unable to create URL")
             return nil
@@ -79,7 +79,6 @@ final class WebViewViewController: UIViewController {
         return request
         
     }
-    
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -138,7 +137,6 @@ final class WebViewViewController: UIViewController {
     @IBAction func didTapBackButton(_ sender: Any) {
         delegate?.webViewViewControllerDidCancel(self)
     }
-    
 }
 
 extension WebViewViewController: WKNavigationDelegate {
@@ -149,7 +147,7 @@ extension WebViewViewController: WKNavigationDelegate {
     ) {
         if let code = code(from: navigationAction) {
             delegate?.webViewViewController(self, didAuthenticateWithCode: code)
-            decisionHandler(.cancel) 
+            decisionHandler(.cancel)
         } else {
             decisionHandler(.allow)
         }
@@ -161,7 +159,7 @@ extension WebViewViewController: WKNavigationDelegate {
             let urlComponents = URLComponents(string: url.absoluteString),
             urlComponents.path == "/oauth/authorize/native",
             let items = urlComponents.queryItems,
-            let codeItem = items.first(where: { $0.name == "code" }) 
+            let codeItem = items.first(where: { $0.name == "code" })
         {
             return codeItem.value
         } else {

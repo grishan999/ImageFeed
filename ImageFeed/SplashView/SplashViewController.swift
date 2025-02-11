@@ -12,6 +12,15 @@ final class SplashViewController: UIViewController {
     private let storage = OAuth2TokenStorage()
     private let profileService = ProfileService()
     
+    let ypBlackColor = UIColor(named: "YP Black")
+    
+    private let logoImageView: UIImageView = {
+        let imageView = UIImageView ()
+        imageView.image = UIImage(named: "Vector")
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
     private var isAuthorized: Bool {
         return storage.token != nil
     }
@@ -19,6 +28,7 @@ final class SplashViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
+        // проверка авторизации
         if isAuthorized {
             print("User is already authorized.")
             
@@ -29,9 +39,19 @@ final class SplashViewController: UIViewController {
             }
             
             fetchProfile(token: token) // Добавляем вызов
-        } else {
-            performSegue(withIdentifier: showAuthenticationScreenSegueIdentifier, sender: nil)
         }
+        
+        //цвет
+        view.backgroundColor = UIColor(named: "YP Black")
+        
+        //добавляем лого на экран
+        view.addSubview(logoImageView)
+        
+        // активирую констрейнты
+        NSLayoutConstraint.activate([
+            logoImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            logoImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
     }
     
     
@@ -42,32 +62,52 @@ final class SplashViewController: UIViewController {
             return
         }
         
-        let tabBarController = UIStoryboard(name: "Main", bundle: .main)
-            .instantiateViewController(withIdentifier: "TabBarViewController")
+        // получение imagesListStoryboard из сториборда
+        guard let imagesListStoryboard = UIStoryboard(name: "Main", bundle: nil)
+            .instantiateViewController(withIdentifier: "ImagesListViewController") as? ImagesListViewController else {
+            print("Failed to instantiate ImagesListViewController from storyboard")
+            return
+        }
         
+        // настройка таб бар элемента для imagesListStoryboard
+        imagesListStoryboard.tabBarItem = UITabBarItem(
+            title: "",
+            image: UIImage(named:"tab_editorial_active"),
+            selectedImage: nil
+        )
+        
+        // настройка таб бар элемента для profileViewController
+        let profileViewController = ProfileViewController()
+        profileViewController.tabBarItem = UITabBarItem(
+            title: "",
+            image: UIImage(named: "tab_profile_active"),
+            selectedImage: nil
+        )
+        
+        // создаем TabBarController и добавляем дочерние контроллеры
+        let tabBarController = UITabBarController()
+        tabBarController.viewControllers = [
+            imagesListStoryboard,
+            profileViewController
+        ]
+        
+        tabBarController.tabBar.barTintColor = UIColor(named: "YP Black") // Фон таб бара
+        tabBarController.tabBar.tintColor = UIColor.white // Цвет активной иконки
+        
+        // устанавливаем TabBarController как корневой контроллер
         window.rootViewController = tabBarController
         window.makeKeyAndVisible()
     }
-}
-
-extension SplashViewController {
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
-        if segue.identifier == showAuthenticationScreenSegueIdentifier {
-            
-            guard
-                let navigationController = segue.destination as? UINavigationController,
-                let viewController = navigationController.viewControllers[0] as? AuthViewController
-            else {
-                print ("Failed to prepare for \(showAuthenticationScreenSegueIdentifier)")
-                return
-            }
-            
-            viewController.delegate = self
-            
-        } else {
-            super.prepare(for: segue, sender: sender)
+    
+    private func showAuthViewController() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        guard let authViewController = storyboard.instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController else {
+            assertionFailure("Failed to instantiate AuthViewController")
+            return
         }
+        authViewController.delegate = self
+        authViewController.modalPresentationStyle = .fullScreen
+        present(authViewController, animated: true)
     }
 }
 
@@ -128,7 +168,7 @@ extension SplashViewController {
                 self.present(alert, animated: true)
                 
                 self.storage.token = nil
-                self.performSegue(withIdentifier: self.showAuthenticationScreenSegueIdentifier, sender: nil)
+                self.showAuthViewController()
             }
         }
     }

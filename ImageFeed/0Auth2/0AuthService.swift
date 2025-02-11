@@ -14,8 +14,7 @@ struct OAuthTokenResponseBody: Decodable {
         case accessToken = "access_token"
     }
 }
-
-
+ 
 final class OAuth2Service {
     
     static let shared = OAuth2Service()
