@@ -39,6 +39,9 @@ final class SplashViewController: UIViewController {
             }
             
             fetchProfile(token: token) // Добавляем вызов
+        } else {
+            // если токена нет, переходим на экран авторизации
+            showAuthViewController()
         }
         
         //цвет
