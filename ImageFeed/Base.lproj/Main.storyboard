@@ -13,7 +13,7 @@
         <!--Auth View Controller-->
         <scene sceneID="0Ez-FX-aeK">
             <objects>
-                <viewController id="UQt-Mc-JHA" userLabel="Auth View Controller" customClass="AuthViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="AuthViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="UQt-Mc-JHA" userLabel="Auth View Controller" customClass="AuthViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Pke-ui-Nn1">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -284,7 +284,6 @@
         <!--Splash View Controller-->
         <scene sceneID="MJd-HP-ErJ">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="jrN-dJ-hrg" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <viewController id="Xvg-YP-L7Z" customClass="SplashViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="O8d-Xo-ST5">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
@@ -305,6 +304,7 @@
                         <segue destination="Rtm-gP-6p4" kind="presentation" identifier="ShowAuthenticationScreen" modalPresentationStyle="fullScreen" id="SQE-g7-ADx"/>
                     </connections>
                 </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="jrN-dJ-hrg" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-2148" y="-152"/>
         </scene>

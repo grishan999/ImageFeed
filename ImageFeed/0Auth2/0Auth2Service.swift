@@ -14,7 +14,7 @@ struct OAuthTokenResponseBody: Decodable {
         case accessToken = "access_token"
     }
 }
- 
+
 final class OAuth2Service {
     
     static let shared = OAuth2Service()
@@ -22,9 +22,12 @@ final class OAuth2Service {
     
     private let tokenStorage = OAuth2TokenStorage()
     private var currentTask: URLSessionTask?
+    private var lastCode: String?
     
     func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
         currentTask?.cancel()
+        
+        lastCode = code
         
         guard let url = URL(string: "https://unsplash.com/oauth/token") else {
             let errorMessage = "[fetchOAuthToken]: NetworkError - can't create URL"
@@ -58,20 +61,26 @@ final class OAuth2Service {
         }
         
         let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+            guard let self = self else { return }
+            self.currentTask = nil
             
-            self?.currentTask = nil
+            // если код запроса не совпадает с последним, значит, этот ответ устарел
+            if lastCode != code {
+                print("Received response for outdated code: \(code). Ignoring result.")
+                // cообщаем об отмене устаревшего запроса
+                completion(.failure(URLError(.cancelled)))
+                return
+            }
+            
             switch result {
             case .success(let responseBody):
                 let token = responseBody.accessToken
-                self?.tokenStorage.token = token
+                self.tokenStorage.token = token
                 completion(.success(token))
             case .failure(let error):
                 completion(.failure(error))
             }
         }
         
-        currentTask = task // сохраняем ссылку на текущий запрос
-        task.resume() // запускаем задачу
     }
 }
-

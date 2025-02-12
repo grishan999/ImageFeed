@@ -10,11 +10,11 @@ import Kingfisher
 
 final class ProfileViewController: UIViewController {
     
-    let profileImage = UIImageView()
-    let exitButton = UIButton()
-    let nameLabel = UILabel()
-    let usernameLabel = UILabel()
-    let descriptionLabel = UILabel()
+    private let profileImage = UIImageView()
+    private let exitButton = UIButton()
+    private let nameLabel = UILabel()
+    private  let usernameLabel = UILabel()
+    private  let descriptionLabel = UILabel()
     
     private var profileImageServiceObserver: NSObjectProtocol?
     
