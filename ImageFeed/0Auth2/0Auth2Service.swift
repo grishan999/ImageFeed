@@ -82,5 +82,8 @@ final class OAuth2Service {
             }
         }
         
+        currentTask = task // сохраняем ссылку на текущий запрос
+        task.resume() // запускаем задачу
+        
     }
 }
