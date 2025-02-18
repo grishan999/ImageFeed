@@ -6,16 +6,52 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
+    
+    private let profileImage = UIImageView()
+    private let exitButton = UIButton()
+    private let nameLabel = UILabel()
+    private  let usernameLabel = UILabel()
+    private  let descriptionLabel = UILabel()
+    
+    private var profileImageServiceObserver: NSObjectProtocol?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let profileImage = UIImageView()
-        let exitButton = UIButton()
-        let nameLabel = UILabel()
-        let usernameLabel = UILabel()
-        let descriptionLabel = UILabel()
+        view.backgroundColor = UIColor(named: "YP Black")
+        
+        //добавление обсервера для нотификаций
+        profileImageServiceObserver = NotificationCenter.default
+            .addObserver(
+                forName: ProfileImageService.didChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                self.updateAvatar()
+            }
+        updateAvatar()
+        
+        func updateUI(with profile: Profile) {
+            nameLabel.text = profile.name.isEmpty ? "No Name" : profile.name
+            usernameLabel.text = profile.loginName
+            descriptionLabel.text = profile.bio ?? "No Bio"
+        }
+        
+        guard let token = OAuth2TokenStorage().token else {
+            print ("Error getting token")
+            return
+        }
+        
+        // проверяем есть ли уже загруженный профиль
+        if let profile = ProfileService.shared.profile {
+            updateUI(with: profile)
+        } else {
+            print("Profile not loaded.")
+        }
         
         //ProfileImage
         profileImage.image = UIImage(named: "UserPhoto")
@@ -86,6 +122,34 @@ final class ProfileViewController: UIViewController {
             descriptionLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             descriptionLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
         ])
+    }
+    
+    private func updateAvatar() {
+        guard
+            let profileImageURL = ProfileImageService.shared.avatarURL,
+            let url = URL(string: profileImageURL)
+        else { return }
+        
+        // делаем изображение круглым
+        let processor = BlurImageProcessor(blurRadius: 5.0)
+        |> RoundCornerImageProcessor(cornerRadius: 20)
+        
+        // использование кингфишера для загрузки аватара
+        profileImage.kf.setImage(with: url,
+                                 placeholder: UIImage(named: "UserPhoto"),
+                                 options: [
+                                    .processor(processor),
+                                    .transition(.fade(3)) // плавный переход при загрузке
+                                 ],
+                                 completionHandler: { result in
+            switch result {
+            case .success (let value):
+                print("Аватар успешно загружен: \(value.source.url?.absoluteString ?? "Unknown URL")")
+            case .failure(let error):
+                print("Ошибка при загрузке аватара: \(error.localizedDescription)")
+            }
+        })
+        
     }
     
     @objc private func exitButtonTapped() {}

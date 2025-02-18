@@ -21,10 +21,16 @@ final class OAuth2Service {
     private init() {}
     
     private let tokenStorage = OAuth2TokenStorage()
+    private var currentTask: URLSessionTask?
+    private var lastCode: String?
     
     func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
+        currentTask?.cancel()
+        
+        lastCode = code
+        
         guard let url = URL(string: "https://unsplash.com/oauth/token") else {
-            let errorMessage = "Error: Failed to create URL from string 'https://unsplash.com/oauth/token'."
+            let errorMessage = "[fetchOAuthToken]: NetworkError - can't create URL"
             print(errorMessage)
             completion(.failure(NetworkError.urlSessionError))
             return
@@ -48,51 +54,36 @@ final class OAuth2Service {
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: [])
         } catch {
-            print("Error: Failed to encode parameters to JSON.")
+            let errorMessage = "[fetchOAuthToken]: - \(error.localizedDescription)"
+            print(errorMessage)
             completion(.failure(error))
             return
         }
         
-        let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            if let error = error {
-                print("Network error: \(error)")
-                DispatchQueue.main.async {
-                    completion(.failure(error))
-                }
+        let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+            guard let self = self else { return }
+            self.currentTask = nil
+            
+            // если код запроса не совпадает с последним, значит, этот ответ устарел
+            if lastCode != code {
+                print("Received response for outdated code: \(code). Ignoring result.")
+                // cообщаем об отмене устаревшего запроса
+                completion(.failure(URLError(.cancelled)))
                 return
             }
             
-            guard let httpResponse = response as? HTTPURLResponse,
-                  (200...299).contains(httpResponse.statusCode),
-                  let data = data else {
-                print("Error: Invalid HTTP response.")
-                DispatchQueue.main.async {
-                    completion(.failure(NetworkError.invalidResponse))
-                }
-                return
-            }
-            
-            print("Response received. Decoding data...")
-            
-            do {
-                let decoder = JSONDecoder()
-                let responseBody = try decoder.decode(OAuthTokenResponseBody.self, from: data)
+            switch result {
+            case .success(let responseBody):
                 let token = responseBody.accessToken
-                
-                self?.tokenStorage.token = token
-                
-                DispatchQueue.main.async {
-                    completion(.success(token))
-                    print("Completion called with success and token: \(token)")
-                }
-            } catch {
-                print("Decoding error: \(error)")
-                DispatchQueue.main.async {
-                    completion(.failure(error))
-                    print("Completion called with decoding error.")
-                }
+                self.tokenStorage.token = token
+                completion(.success(token))
+            case .failure(let error):
+                completion(.failure(error))
             }
         }
-        task.resume()
+        
+        currentTask = task // сохраняем ссылку на текущий запрос
+        task.resume() // запускаем задачу
+        
     }
 }
