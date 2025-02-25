@@ -6,13 +6,17 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ImagesListViewController: UIViewController {
     
     @IBOutlet private var tableView: UITableView!
     
+    private var photos: [Photo] = []
     private let photosName: [String] = Array(0..<20).map{ "\($0)" }
     private let showSingleImageSegueIdentifier = "ShowSingleImage"
+    private var imagesListViewControllerObserver: NSObjectProtocol?
+    private let imagesListService = ImagesListService()
     
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -23,8 +27,28 @@ final class ImagesListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        //fetchPhotosNextPage()
+        //        tableView.dataSource = self
+        //        tableView.delegate = self
         view.backgroundColor = UIColor(named: "YP Black")
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
+        tableView.register(ImagesListCell.self, forCellReuseIdentifier: ImagesListCell.reuseIdentifier)
+        
+        imagesListViewControllerObserver = NotificationCenter.default
+            .addObserver(
+                forName: ImagesListService.didChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                self.updatePhotos()
+            }
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        updatePhotos()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -43,11 +67,28 @@ final class ImagesListViewController: UIViewController {
             super.prepare(for: segue, sender: sender)
         }
     }
+    
+    private func updatePhotos() {
+        let oldCount = photos.count
+        let newCount = imagesListService.photos.count
+        photos = imagesListService.photos
+        
+        print("Updating photos. Old count: \(oldCount), new count: \(newCount)")
+        
+        tableView.performBatchUpdates{
+            // Создаем массив индексов для новых строк
+            let indexPaths = (oldCount..<newCount).map { IndexPath(row: $0, section: 0) }
+            // Вставляем новые строки в таблицу
+            tableView.insertRows(at: indexPaths, with: .automatic)
+        } completion: { _ in
+        }
+        print("Updating photos. Old count: \(oldCount), new count: \(newCount)")
+    }
 }
 
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return photosName.count
+        return photos.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -63,14 +104,40 @@ extension ImagesListViewController: UITableViewDataSource {
     }
 }
 
+// настройка ячейки
 extension ImagesListViewController {
     func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
-        guard let image = UIImage(named: photosName[indexPath.row]) else {
-            return
+        // gолучаем фотографию для текущей строки
+        let photo = photos[indexPath.row]
+        
+        //плейсхолдер
+        cell.cellImage.image = UIImage(named: "placeholder")
+        
+        //индикатор загрузки
+        cell.cellImage.kf.indicatorType = .activity
+        
+        // проверка УРЛ
+        if let url = URL(string: photo.thumbImageURL) {
+            // подгружаем КФ
+            cell.cellImage.kf.setImage(with: url,
+                                       //placeholder: UIImage(named: "placeholder"),
+                                       options: [.transition(.fade(1))]
+            ) { [weak self] result in
+                // обработка результата
+                guard let self = self else { return }
+                
+                switch result {
+                case .success:
+                    //обновление высоты ячейки (автоматическое под размер )
+                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
+                case .failure(let error):
+                    print("Error downloading image: \(error)")
+                }
+            }
         }
         
-        cell.cellImage.image = image
-        cell.dateLabel.text = dateFormatter.string(from: Date())
+        cell.dateLabel.text = photo.createdAt.map { dateFormatter.string(from: $0) }
+        
         
         let isLiked = indexPath.row % 2 == 0
         let likeImage = isLiked ? UIImage(named: "Like no active") : UIImage(named: "Like Image")
@@ -78,9 +145,27 @@ extension ImagesListViewController {
     }
 }
 
+
 extension ImagesListViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        performSegue(withIdentifier: showSingleImageSegueIdentifier, sender: indexPath)
+   
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        // отображение следующей страницы, если отображается последняя ячейка
+        if indexPath.row == photos.count - 1 {
+            fetchPhotosNextPage()
+        }
+    }
+    
+    // загрузка следующей страницы фотографий
+    private func fetchPhotosNextPage() {
+        imagesListService.fetchPhotos { [weak self] photos in
+            DispatchQueue.main.async {
+                
+                // апдейт массива
+                self?.photos = photos
+                // релоуд тейбла
+                self?.tableView.reloadData()
+            }
+        }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -96,3 +181,4 @@ extension ImagesListViewController: UITableViewDelegate {
         return cellHeight
     }
 }
+

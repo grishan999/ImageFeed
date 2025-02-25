@@ -97,6 +97,8 @@ final class ImagesListService {
                     self.photos.append(contentsOf: newPhotos)
                     self.lastLoadedPage = nextPage
                     
+                    print("Loaded \(newPhotos.count) new photos. Total photos: \(self.photos.count)")
+                    
                     // отправка нотификации
                     NotificationCenter.default.post(
                         name: ImagesListService.didChangeNotification,
