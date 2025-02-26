@@ -27,12 +27,10 @@ final class ImagesListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        //fetchPhotosNextPage()
-        //        tableView.dataSource = self
-        //        tableView.delegate = self
+        fetchPhotosNextPage()
+        
         view.backgroundColor = UIColor(named: "YP Black")
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
-        tableView.register(ImagesListCell.self, forCellReuseIdentifier: ImagesListCell.reuseIdentifier)
         
         imagesListViewControllerObserver = NotificationCenter.default
             .addObserver(
@@ -76,9 +74,9 @@ final class ImagesListViewController: UIViewController {
         print("Updating photos. Old count: \(oldCount), new count: \(newCount)")
         
         tableView.performBatchUpdates{
-            // Создаем массив индексов для новых строк
+            // создаем массив индексов для новых строк
             let indexPaths = (oldCount..<newCount).map { IndexPath(row: $0, section: 0) }
-            // Вставляем новые строки в таблицу
+            // вставляем новые строки в таблицу
             tableView.insertRows(at: indexPaths, with: .automatic)
         } completion: { _ in
         }

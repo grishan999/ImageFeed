@@ -88,7 +88,7 @@ final class ImagesListService {
                         welcomeDescription: photoResult.description,
                         thumbImageURL: photoResult.urls.thumb,
                         largeImageURL: photoResult.urls.full,
-                        isLiked: photoResult.likedByUser
+                        isLiked: photoResult.isLiked
                     )
                 }
                 
@@ -112,5 +112,10 @@ final class ImagesListService {
         
         // запускаем задачу
         currentTask?.resume()
+    }
+    
+    // функциональность лайков
+    func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<Void, Error>) -> Void) {
+        
     }
 }

@@ -25,7 +25,7 @@ public struct PhotoResult: Decodable {
     let color: String
     let blurHash: String
     let likes: Int
-    let likedByUser: Bool
+    let isLiked: Bool
     let description: String?
     let urls: UrlsResult
     
@@ -38,7 +38,7 @@ public struct PhotoResult: Decodable {
         case color
         case blurHash = "blur_hash"
         case likes
-        case likedByUser = "liked_by_user"
+        case isLiked = "liked_by_user"
         case description
         case urls
     }
