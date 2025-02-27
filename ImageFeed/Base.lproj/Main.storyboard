@@ -158,6 +158,9 @@
                                                     </constraints>
                                                     <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                     <state key="normal" title="" image="Like Image"/>
+                                                    <connections>
+                                                        <action selector="likeButtonClicked:" destination="fId-Mq-jjP" eventType="touchUpInside" id="jor-NI-4aa"/>
+                                                    </connections>
                                                 </button>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" insetsLayoutMarginsFromSafeArea="NO" text="24 декабря 2024" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JP7-z6-4nA" userLabel="Date Label">
                                                     <rect key="frame" x="24" y="196" width="107" height="16"/>
