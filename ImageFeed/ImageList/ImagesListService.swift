@@ -25,6 +25,9 @@ final class ImagesListService {
     private var dataTask: URLSessionTask?
     
     static let didChangeNotification = Notification.Name(rawValue: "ImagesListServiceDidChange")
+    static let shared = ImagesListService()
+    
+
     
     // преобразование строки даты в объект Date
     private func date(from dateString: String?) -> Date? {
@@ -186,6 +189,10 @@ final class ImagesListService {
         dataTask.resume()
         self.dataTask = dataTask
     }
+    
+    func cleanImagesList() {
+           photos = []
+       }
 }
 
 extension Array {

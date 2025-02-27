@@ -152,5 +152,8 @@ final class ProfileViewController: UIViewController {
         
     }
     
-    @objc private func exitButtonTapped() {}
+    @objc private func exitButtonTapped() {
+        ProfileLogoutService.shared.logout()
+        print ("Профиль обнулен")
+    }
 }
