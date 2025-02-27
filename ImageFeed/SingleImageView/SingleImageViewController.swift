@@ -14,7 +14,6 @@ final class SingleImageViewController: UIViewController {
             guard isViewLoaded, let imageURL else { return }
             loadImage(from: imageURL)
         }
-        
     }
     
     // MARK: - IBOutlets
