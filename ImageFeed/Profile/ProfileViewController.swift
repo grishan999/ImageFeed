@@ -81,6 +81,31 @@ final class ProfileViewController: UIViewController {
     }
     
     @objc private func exitButtonTapped() {
+        showAlertForExit()
+    }
+    
+    private func showAlertForExit() {
+        let alert = UIAlertController (
+            title: "Пока, пока!",
+            message: "Уверены, что хотите выйти?",
+            preferredStyle: .alert
+        )
+        
+        let yesButton = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
+            self?.performLogout()
+        }
+        
+        let noButton = UIAlertAction(title: "Нет", style: .default, handler: nil)
+        
+        alert.addAction(yesButton)
+        alert.addAction(noButton)
+        
+        // показываем алерт
+        present(alert, animated: true, completion: nil)
+        
+    }
+    
+    private func performLogout() {
         ProfileLogoutService.shared.logout()
         print("Профиль обнулен")
     }

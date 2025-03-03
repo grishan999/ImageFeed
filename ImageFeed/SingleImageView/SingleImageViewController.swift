@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import Kingfisher
+import ProgressHUD
 
 final class SingleImageViewController: UIViewController {
     // MARK: - Public Variables
@@ -22,40 +24,59 @@ final class SingleImageViewController: UIViewController {
     
     // MARK: - Private Methods
     private func rescaleAndCenterImageInScrollView(image: UIImage) {
-        // Устанавливаем размер imageView равным размеру изображения
+        // устанавливаем размер imageView равным размеру изображения
         imageView.frame = CGRect(origin: .zero, size: image.size)
         
-        // Устанавливаем contentSize scrollView равным размеру изображения
+        // устанавливаем contentSize scrollView равным размеру изображения
         scrollView.contentSize = image.size
         
-        // Вычисляем масштаб для правильного отображения изображения
+        // вычисляем масштаб для правильного отображения изображения
         let minZoomScale = scrollView.minimumZoomScale
         let maxZoomScale = scrollView.maximumZoomScale
         let visibleRectSize = scrollView.bounds.size
         let imageSize = image.size
         
-        // Вычисляем масштаб для заполнения scrollView
+        // вычисляем масштаб для заполнения scrollView
         let hScale = visibleRectSize.width / imageSize.width
         let vScale = visibleRectSize.height / imageSize.height
         let scale = min(maxZoomScale, max(minZoomScale, max(hScale, vScale)))
         
-        // Устанавливаем zoomScale
+        // устанавливаем zoomScale
         scrollView.setZoomScale(scale, animated: false)
         
-        // Центрируем изображение
+        // центрируем изображение
         let offsetX = max((scrollView.contentSize.width - scrollView.bounds.width) / 2, 0)
         let offsetY = max((scrollView.contentSize.height - scrollView.bounds.height) / 2, 0)
         scrollView.setContentOffset(CGPoint(x: offsetX, y: offsetY), animated: false)
     }
     
+    private let placeholderSize = CGSize(width: 83, height: 75)
+    
     private func loadImage(from url: URL) {
-        imageView.kf.indicatorType = .activity // Показываем индикатор загрузки
-        imageView.kf.setImage(with: url) { [weak self] result in
+        let placeholderImage = UIImage(named: "SinglePlaceholder")
+        ProgressHUD.show()
+        
+        // Устанавливаем размер imageView равным размеру плейсхолдера
+           imageView.frame.size = placeholderSize
+           
+           // Центрируем imageView внутри scrollView
+           imageView.center = CGPoint(
+               x: scrollView.bounds.midX,
+               y: scrollView.bounds.midY
+           )
+        
+        imageView.kf.setImage(
+            with: url,
+            placeholder: placeholderImage,
+            options: [.transition(.fade(0.2))]
+        ) { [weak self] result in
             guard let self = self else { return }
+            ProgressHUD.dismiss()
+            
             switch result {
             case .success(let value):
-                // После успешной загрузки масштабируем и центрируем изображение
                 self.rescaleAndCenterImageInScrollView(image: value.image)
+                self.imageView.contentMode = .scaleAspectFill
             case .failure(let error):
                 print("Ошибка загрузки изображения: \(error)")
             }
@@ -73,6 +94,7 @@ final class SingleImageViewController: UIViewController {
         if let imageURL = imageURL {
             loadImage(from: imageURL)
         }
+        imageView.contentMode = .center
     }
     
     // MARK: - IBActions
@@ -88,7 +110,6 @@ final class SingleImageViewController: UIViewController {
     @IBAction private func didTapBackButton(_ sender: Any) {
         dismiss(animated: true, completion: nil)
     }
-    
 }
 
 // MARK: - UIScrollViewDelegate

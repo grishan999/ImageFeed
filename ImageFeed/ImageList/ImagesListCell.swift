@@ -19,7 +19,6 @@ final class ImagesListCell: UITableViewCell {
         DispatchQueue.main.async {
             let likeImage = isLiked ? UIImage(named: "Like Image") : UIImage(named: "Like no active")
             self.likeButton.setImage(likeImage, for: .normal)
-            self.likeButton.layoutIfNeeded() // Принудительное обновление layout
         }
     }
     

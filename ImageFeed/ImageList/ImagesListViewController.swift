@@ -47,7 +47,6 @@ final class ImagesListViewController: UIViewController {
                 guard let self = self else { return }
                 self.updatePhotos()
             }
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -111,7 +110,7 @@ extension ImagesListViewController: UITableViewDataSource {
 // настройка ячейки
 extension ImagesListViewController {
     func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
-        // gолучаем фотографию для текущей строки
+        // получаем фотографию для текущей строки
         let photo = photos[indexPath.row]
         
         //плейсхолдер
@@ -142,18 +141,12 @@ extension ImagesListViewController {
             }
         }
         cell.dateLabel.text = photo.createdAt.map { dateFormatter.string(from: $0) }
-        cell.setIsLiked(photo.isLiked)
     }
 }
 
 extension ImagesListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        
-        func imageListCellDidTapLike(_ cell: ImagesListCell) {
-            guard let indexPath = tableView.indexPath(for: cell) else { return }
-            let photo = photos[indexPath.row]
-        }
         
         // отображение следующей страницы, если отображается последняя ячейка
         if indexPath.row == photos.count - 1 {
@@ -163,27 +156,32 @@ extension ImagesListViewController: UITableViewDelegate {
     
     // загрузка следующей страницы фотографий
     private func fetchPhotosNextPage() {
-        imagesListService.fetchPhotos { [weak self] photos in
+        imagesListService.fetchPhotos { [weak self] newPhotos in
+            guard let self = self else { return }
+            
             DispatchQueue.main.async {
+                let oldCount = self.photos.count
+                self.photos.append(contentsOf: newPhotos)
+                let newCount = self.photos.count
                 
-                // апдейт массива
-                self?.photos = photos
-                // релоуд тейбла
-                self?.tableView.reloadData()
+                self.tableView.performBatchUpdates {
+                    let indexPaths = (oldCount..<newCount).map { IndexPath(row: $0, section: 0) }
+                    self.tableView.insertRows(at: indexPaths, with: .automatic)
+                } completion: { _ in }
             }
         }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard let image = UIImage(named: photosName[indexPath.row]) else {
-            return 0
-        }
+        let photo = photos[indexPath.row]
+        
+        // используем размер изображения из photo
+        let imageSize = CGSize(width: photo.size.width, height: photo.size.height)
         
         let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
         let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
-        let imageWidth = image.size.width
-        let scale = imageViewWidth / imageWidth
-        let cellHeight = image.size.height * scale + imageInsets.top + imageInsets.bottom
+        let scale = imageViewWidth / imageSize.width
+        let cellHeight = imageSize.height * scale + imageInsets.top + imageInsets.bottom
         return cellHeight
     }
 }
@@ -191,7 +189,7 @@ extension ImagesListViewController: UITableViewDelegate {
 extension ImagesListViewController: ImagesListCellDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // Вызываем сегвей, передавая indexPath как sender
+        // вызываем сегвей, передавая indexPath как sender
         performSegue(withIdentifier: showSingleImageSegueIdentifier, sender: indexPath)
     }
     func imageListCellDidTapLike(_ cell: ImagesListCell) {

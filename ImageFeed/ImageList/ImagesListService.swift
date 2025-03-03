@@ -27,13 +27,12 @@ final class ImagesListService {
     static let didChangeNotification = Notification.Name(rawValue: "ImagesListServiceDidChange")
     static let shared = ImagesListService()
     
-
+    
     
     // преобразование строки даты в объект Date
     private func date(from dateString: String?) -> Date? {
         guard let dateString = dateString else { return nil }
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+        let formatter = ISO8601DateFormatter()
         return formatter.date(from: dateString)
     }
     
@@ -120,7 +119,7 @@ final class ImagesListService {
     
     // функциональность лайков
     func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<Void, Error>) -> Void) {
-        // Проверка корректности photoId
+        // проверка корректности photoId
         guard !photoId.isEmpty else {
             print("Error: photoId is empty")
             return
@@ -133,17 +132,17 @@ final class ImagesListService {
         }
         print("URL successfully created: \(url)")
         
-        // Проверка текущей задачи
+        // чекаем текущую задачу
         guard currentTask == nil else {
             print("A task is already in progress.")
             return
         }
         
-        // Настройка запроса
+        // настройка запроса
         var request = URLRequest(url: url)
         request.httpMethod = isLike ? "POST" : "DELETE"
         
-        // Добавление токена авторизации
+        // добавление токена авторизации
         if let token = OAuth2TokenStorage().token {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         } else {
@@ -151,25 +150,25 @@ final class ImagesListService {
             return
         }
         
-        // Отмена предыдущей задачи, если она существует
+        //обнуление предыдущей задачи
         if let existingTask = dataTask {
             existingTask.cancel()
         }
         
-        // Создание новой задачи
+        // создание новой задачи
         let dataTask = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             guard let self = self else { return }
             
             self.currentTask = nil
             
-            // Обработка ошибок
+            // обработка ошибок
             if let error = error {
                 print("Error changing like: \(error.localizedDescription)")
                 completion(.failure(error))
                 return
             }
             
-            // Обработка ответа сервера
+            // обработка ответа сервера
             if let httpResponse = response as? HTTPURLResponse {
                 if (200...299).contains(httpResponse.statusCode) {
                     print("Like status updated successfully")
@@ -185,14 +184,15 @@ final class ImagesListService {
                 completion(.failure(unknownError))
             }
         }
-        // Запуск задачи
+        // запуск задачи
         dataTask.resume()
         self.dataTask = dataTask
     }
     
     func cleanImagesList() {
-           photos = []
-       }
+        photos = []
+        lastLoadedPage = nil
+    }
 }
 
 extension Array {
