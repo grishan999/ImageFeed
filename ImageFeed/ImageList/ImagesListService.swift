@@ -30,7 +30,7 @@ final class ImagesListService {
         let nextPage = (lastLoadedPage ?? 0) + 1
         
         if nextPage == 1 {
-            photos.removeAll() 
+            photos.removeAll()
         }
         
         // создание урл

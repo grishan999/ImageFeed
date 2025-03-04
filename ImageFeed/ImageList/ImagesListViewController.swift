@@ -113,9 +113,7 @@ extension ImagesListViewController {
         if let url = URL(string: photo.thumbImageURL) {
             // подгружаем КФ
             cell.cellImage.kf.setImage(with: url,
-                                       placeholder: UIImage(named: "placeholder"),
-                                       options: [.transition(.fade(1))]
-            ) { [weak self] result in
+                                       placeholder: UIImage(named: "placeholder")) { [weak self] result in
                 // обработка результата
                 guard let self = self else { return }
                 
