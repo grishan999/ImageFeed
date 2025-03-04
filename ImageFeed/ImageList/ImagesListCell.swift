@@ -15,6 +15,7 @@ final class ImagesListCell: UITableViewCell {
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var cellImage: UIImageView!
     
+    
     func setIsLiked(_ isLiked: Bool) {
         DispatchQueue.main.async {
             let likeImage = isLiked ? UIImage(named: "Like Image") : UIImage(named: "Like no active")

@@ -17,6 +17,11 @@ final class ImagesListService {
     static let didChangeNotification = Notification.Name(rawValue: "ImagesListServiceDidChange")
     static let shared = ImagesListService()
     
+    private let iso8601Formatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        return formatter
+    }()
+    
     func fetchPhotos(completion: @escaping ([Photo]) -> Void) {
         guard currentTask == nil else {
             return
@@ -105,8 +110,7 @@ final class ImagesListService {
     // преобразование строки даты в объект Date
     private func date(from dateString: String?) -> Date? {
         guard let dateString = dateString else { return nil }
-        let formatter = ISO8601DateFormatter()
-        return formatter.date(from: dateString)
+        return iso8601Formatter.date(from: dateString)
     }
     
     // функциональность лайков
