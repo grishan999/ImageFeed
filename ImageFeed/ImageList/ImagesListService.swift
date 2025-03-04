@@ -5,17 +5,7 @@
 //  Created by Ilya Grishanov on 20.02.2025.
 //
 
-import UIKit
-
-struct Photo {
-    let id: String
-    let size: CGSize
-    let createdAt: Date?
-    let welcomeDescription: String?
-    let thumbImageURL: String
-    let largeImageURL: String
-    var isLiked: Bool
-}
+import Foundation
 
 final class ImagesListService {
     
@@ -27,21 +17,16 @@ final class ImagesListService {
     static let didChangeNotification = Notification.Name(rawValue: "ImagesListServiceDidChange")
     static let shared = ImagesListService()
     
-    
-    
-    // преобразование строки даты в объект Date
-    private func date(from dateString: String?) -> Date? {
-        guard let dateString = dateString else { return nil }
-        let formatter = ISO8601DateFormatter()
-        return formatter.date(from: dateString)
-    }
-    
     func fetchPhotos(completion: @escaping ([Photo]) -> Void) {
         guard currentTask == nil else {
             return
         }
         
         let nextPage = (lastLoadedPage ?? 0) + 1
+        
+        if nextPage == 1 {
+            photos.removeAll() 
+        }
         
         // создание урл
         guard let url = URL(string: "https://api.unsplash.com/photos?page=\(nextPage)") else {
@@ -115,6 +100,13 @@ final class ImagesListService {
         
         // запускаем задачу
         currentTask?.resume()
+    }
+    
+    // преобразование строки даты в объект Date
+    private func date(from dateString: String?) -> Date? {
+        guard let dateString = dateString else { return nil }
+        let formatter = ISO8601DateFormatter()
+        return formatter.date(from: dateString)
     }
     
     // функциональность лайков

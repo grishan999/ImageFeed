@@ -57,13 +57,13 @@ final class SingleImageViewController: UIViewController {
         ProgressHUD.show()
         
         // Устанавливаем размер imageView равным размеру плейсхолдера
-           imageView.frame.size = placeholderSize
-           
-           // Центрируем imageView внутри scrollView
-           imageView.center = CGPoint(
-               x: scrollView.bounds.midX,
-               y: scrollView.bounds.midY
-           )
+        imageView.frame.size = placeholderSize
+        
+        // Центрируем imageView внутри scrollView
+        imageView.center = CGPoint(
+            x: scrollView.bounds.midX,
+            y: scrollView.bounds.midY
+        )
         
         imageView.kf.setImage(
             with: url,

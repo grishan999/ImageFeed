@@ -7,7 +7,7 @@
 
 import UIKit
 
-public struct UrlsResult: Decodable {
+struct UrlsResult: Decodable {
     let raw: String
     let full: String
     let regular: String
@@ -16,7 +16,7 @@ public struct UrlsResult: Decodable {
 }
 
 
-public struct PhotoResult: Decodable {
+struct PhotoResult: Decodable {
     let id: String
     let createdAt: String
     let updatedAt: String
@@ -42,4 +42,14 @@ public struct PhotoResult: Decodable {
         case description
         case urls
     }
+}
+
+struct Photo {
+    let id: String
+    let size: CGSize
+    let createdAt: Date?
+    let welcomeDescription: String?
+    let thumbImageURL: String
+    let largeImageURL: String
+    var isLiked: Bool
 }

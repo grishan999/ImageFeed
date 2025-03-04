@@ -73,20 +73,8 @@ final class ImagesListViewController: UIViewController {
     }
     
     private func updatePhotos() {
-        let oldCount = photos.count
-        let newCount = imagesListService.photos.count
         photos = imagesListService.photos
-        
-        print("Updating photos. Old count: \(oldCount), new count: \(newCount)")
-        
-        tableView.performBatchUpdates{
-            // создаем массив индексов для новых строк
-            let indexPaths = (oldCount..<newCount).map { IndexPath(row: $0, section: 0) }
-            // вставляем новые строки в таблицу
-            tableView.insertRows(at: indexPaths, with: .automatic)
-        } completion: { _ in
-        }
-        print("Updating photos. Old count: \(oldCount), new count: \(newCount)")
+        tableView.reloadData()
     }
 }
 
@@ -101,7 +89,7 @@ extension ImagesListViewController: UITableViewDataSource {
         }
         
         configCell(for: cell, with: indexPath)
-        cell.delegate = self // Устанавливаем делегат
+        cell.delegate = self
         
         return cell
     }
@@ -113,8 +101,8 @@ extension ImagesListViewController {
         // получаем фотографию для текущей строки
         let photo = photos[indexPath.row]
         
-        //плейсхолдер
-        cell.cellImage.image = UIImage(named: "placeholder")
+        cell.cellImage.kf.cancelDownloadTask() // Отменить предыдущую загрузку
+        cell.cellImage.image = UIImage(named: "placeholder") // Сброс картинки
         
         cell.setIsLiked(photo.isLiked)
         
@@ -133,8 +121,11 @@ extension ImagesListViewController {
                 
                 switch result {
                 case .success:
-                    //обновление высоты ячейки (автоматическое под размер )
-                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
+                    DispatchQueue.main.async {
+                        if let updatedCell = self.tableView.cellForRow(at: indexPath) as? ImagesListCell {
+                            updatedCell.cellImage.image = cell.cellImage.image
+                        }
+                    }
                 case .failure(let error):
                     print("Error downloading image: \(error)")
                 }
@@ -160,14 +151,16 @@ extension ImagesListViewController: UITableViewDelegate {
             guard let self = self else { return }
             
             DispatchQueue.main.async {
+                guard !newPhotos.isEmpty else { return }
+                
                 let oldCount = self.photos.count
                 self.photos.append(contentsOf: newPhotos)
-                let newCount = self.photos.count
+                
+                let indexPaths = (oldCount..<self.photos.count).map { IndexPath(row: $0, section: 0) }
                 
                 self.tableView.performBatchUpdates {
-                    let indexPaths = (oldCount..<newCount).map { IndexPath(row: $0, section: 0) }
                     self.tableView.insertRows(at: indexPaths, with: .automatic)
-                } completion: { _ in }
+                }
             }
         }
     }
