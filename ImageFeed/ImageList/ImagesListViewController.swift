@@ -98,28 +98,35 @@ extension ImagesListViewController: UITableViewDataSource {
 // настройка ячейки
 extension ImagesListViewController {
     func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
-        // получаем фотографию для текущей строки
+        // Проверяем, что индекс ячейки все еще актуален
+        guard indexPath.row < photos.count else {
+            return
+        }
+        
         let photo = photos[indexPath.row]
         
-        cell.cellImage.kf.cancelDownloadTask() // Отменить предыдущую загрузку
-        cell.cellImage.image = UIImage(named: "placeholder") // Сброс картинки
+        // Отменить предыдущую загрузку
+        cell.cellImage.kf.cancelDownloadTask()
         
+        // Сброс картинки
+        cell.cellImage.image = UIImage(named: "placeholder")
+        
+        // Установка состояния лайка
         cell.setIsLiked(photo.isLiked)
         
-        //индикатор загрузки
+        // Индикатор загрузки
         cell.cellImage.kf.indicatorType = .activity
         
-        // проверка УРЛ
+        // Проверка УРЛ
         if let url = URL(string: photo.thumbImageURL) {
-            // подгружаем КФ
-            cell.cellImage.kf.setImage(with: url,
-                                       placeholder: UIImage(named: "placeholder")) { [weak self] result in
-                // обработка результата
+            // Подгружаем изображение с помощью Kingfisher
+            cell.cellImage.kf.setImage(with: url, placeholder: UIImage(named: "placeholder")) { [weak self] result in
                 guard let self = self else { return }
                 
                 switch result {
                 case .success:
                     DispatchQueue.main.async {
+                        // Проверяем, что ячейка все еще отображает правильный индекс
                         if let updatedCell = self.tableView.cellForRow(at: indexPath) as? ImagesListCell {
                             updatedCell.cellImage.image = cell.cellImage.image
                         }
@@ -129,6 +136,8 @@ extension ImagesListViewController {
                 }
             }
         }
+        
+        // Установка даты
         cell.dateLabel.text = photo.createdAt.map { dateFormatter.string(from: $0) }
     }
 }
@@ -151,8 +160,13 @@ extension ImagesListViewController: UITableViewDelegate {
             DispatchQueue.main.async {
                 guard !newPhotos.isEmpty else { return }
                 
+                // Фильтруем дубликаты
+                let uniqueNewPhotos = newPhotos.filter { newPhoto in
+                    !self.photos.contains { $0.id == newPhoto.id }
+                }
+                
                 let oldCount = self.photos.count
-                self.photos.append(contentsOf: newPhotos)
+                self.photos.append(contentsOf: uniqueNewPhotos)
                 
                 let indexPaths = (oldCount..<self.photos.count).map { IndexPath(row: $0, section: 0) }
                 

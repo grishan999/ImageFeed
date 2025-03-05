@@ -33,31 +33,23 @@ final class ImagesListService {
             photos.removeAll()
         }
         
-        // создание урл
         guard let url = URL(string: "https://api.unsplash.com/photos?page=\(nextPage)") else {
-            let errorMessage = "[fetchPhotosURL]: MissingError - can't create URL"
-            print(errorMessage)
+            print("Error: Invalid URL")
             return
         }
         
-        print("URL successfully created: \(url)")
-        
-        // создаем ревест (запрос)
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         
-        // заголовок авторизации (токен)
         if let token = OAuth2TokenStorage().token {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
-        // создаем новый таск для запроса
         currentTask = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             guard let self = self else { return }
             
             self.currentTask = nil
             
-            // Проверяем ошибки
             if let error = error {
                 print("Error fetching photos: \(error.localizedDescription)")
                 return
@@ -68,11 +60,9 @@ final class ImagesListService {
                 return
             }
             
-            // жисон декодинг
             do {
                 let photoResults = try JSONDecoder().decode([PhotoResult].self, from: data)
                 
-                // Преобразуем PhotoResult в Photo
                 let newPhotos = photoResults.map { photoResult in
                     Photo(
                         id: photoResult.id,
@@ -85,14 +75,17 @@ final class ImagesListService {
                     )
                 }
                 
-                // обновление массива фотос
+                // Фильтруем дубликаты
+                let uniqueNewPhotos = newPhotos.filter { newPhoto in
+                    !self.photos.contains { $0.id == newPhoto.id }
+                }
+                
                 DispatchQueue.main.async {
-                    self.photos.append(contentsOf: newPhotos)
+                    self.photos.append(contentsOf: uniqueNewPhotos)
                     self.lastLoadedPage = nextPage
                     
-                    print("Loaded \(newPhotos.count) new photos. Total photos: \(self.photos.count)")
+                    print("Loaded \(uniqueNewPhotos.count) new photos. Total photos: \(self.photos.count)")
                     
-                    // отправка нотификации
                     NotificationCenter.default.post(
                         name: ImagesListService.didChangeNotification,
                         object: self
@@ -103,9 +96,9 @@ final class ImagesListService {
             }
         }
         
-        // запускаем задачу
         currentTask?.resume()
     }
+    
     
     // преобразование строки даты в объект Date
     private func date(from dateString: String?) -> Date? {
@@ -189,6 +182,8 @@ final class ImagesListService {
         photos = []
         lastLoadedPage = nil
     }
+    
+    
 }
 
 extension Array {
