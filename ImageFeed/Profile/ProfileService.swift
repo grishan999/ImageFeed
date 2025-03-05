@@ -93,4 +93,8 @@ final class ProfileService {
         currentTask = task // сохраняем ссылку на текущий запрос
         task.resume() // запускаем задачу
     }
+    
+    func cleanProfileData() {
+        profile = nil
+    }
 }

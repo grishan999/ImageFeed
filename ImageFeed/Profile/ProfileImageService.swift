@@ -90,4 +90,8 @@ final class ProfileImageService {
         self.currentTask = task // сохраняем ссылку на текущий запрос
         task.resume() // запускаем задачу
     }
+    
+    func cleanProfilePhoto() {
+        avatarURL = nil
+    }
 }
