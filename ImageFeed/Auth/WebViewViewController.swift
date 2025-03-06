@@ -15,10 +15,6 @@ public protocol WebViewViewControllerProtocol: AnyObject {
     func setProgressHidden(_ isHidden: Bool)
 }
 
-enum WebViewConstants {
-    static let unsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
-}
-
 protocol WebViewViewControllerDelegate: AnyObject {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String)
     func webViewViewControllerDidCancel(_ vc: WebViewViewController)
@@ -43,17 +39,13 @@ final class WebViewViewController: UIViewController & WebViewViewControllerProto
                  guard let self = self else { return }
              })
         
-        
-        
         webView.navigationDelegate = self
         presenter?.viewDidLoad()
-        
-        
     }
     
     func load(request: URLRequest) {
         webView.load(request)
-    } 
+    }
     
     func makeOAuthTokenRequest(code: String) -> URLRequest? {
         guard let baseURL = URL(string: "https://unsplash.com") else {
@@ -90,7 +82,6 @@ final class WebViewViewController: UIViewController & WebViewViewControllerProto
         print("URLRequest successfully created: \(request)")
         
         return request
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -115,16 +106,16 @@ final class WebViewViewController: UIViewController & WebViewViewControllerProto
         context: UnsafeMutableRawPointer?
     ) {
         if keyPath == #keyPath(WKWebView.estimatedProgress) {
-                presenter?.didUpdateProgressValue(webView.estimatedProgress)
-            } else {
-                super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
-            }
+            presenter?.didUpdateProgressValue(webView.estimatedProgress)
+        } else {
+            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
+        }
     }
     
     func setProgressValue(_ newValue: Float) {
         progressView.progress = newValue
     }
-
+    
     func setProgressHidden(_ isHidden: Bool) {
         progressView.isHidden = isHidden
     }
@@ -137,18 +128,16 @@ final class WebViewViewController: UIViewController & WebViewViewControllerProto
 
 extension WebViewViewController: WKNavigationDelegate {
     func webView(
-          _ webView: WKWebView,
-          decidePolicyFor navigationAction: WKNavigationAction,
-          decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
-      ) {
-          if let url = navigationAction.request.url,
-             let code = presenter?.handleAuthorizationCode(from: url) {
-              delegate?.webViewViewController(self, didAuthenticateWithCode: code)
-              decisionHandler(.cancel)
-          } else {
-              decisionHandler(.allow)
-          }
-      }
-    
-   
+        _ webView: WKWebView,
+        decidePolicyFor navigationAction: WKNavigationAction,
+        decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+    ) {
+        if let url = navigationAction.request.url,
+           let code = presenter?.handleAuthorizationCode(from: url) {
+            delegate?.webViewViewController(self, didAuthenticateWithCode: code)
+            decisionHandler(.cancel)
+        } else {
+            decisionHandler(.allow)
+        }
+    }
 }
