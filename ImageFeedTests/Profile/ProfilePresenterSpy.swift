@@ -4,15 +4,16 @@
 //
 //  Created by Ilya Grishanov on 09.03.2025.
 //
-
-import ImageFeed
-import Foundation
+@testable import ImageFeed
+import UIKit
 
 final class ProfilePresenterSpy: ProfilePresenterProtocol {
-    weak var view: ProfileViewControllerProtocol?
+    var view: ProfileViewControllerProtocol?
     
     var viewDidLoadCalled = false
     var didTapExitButtonCalled = false
+    var updateAvatarCalled = false
+    var updatedAvatarURL: URL?
     
     func viewDidLoad() {
         viewDidLoadCalled = true
@@ -20,5 +21,11 @@ final class ProfilePresenterSpy: ProfilePresenterProtocol {
     
     func didTapExitButton() {
         didTapExitButtonCalled = true
+    }
+
+    func updateAvatar(with url: URL) {
+        updateAvatarCalled = true
+        updatedAvatarURL = url
+        view?.updateAvatar(with: url) 
     }
 }
