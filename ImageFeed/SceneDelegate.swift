@@ -18,6 +18,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Устанавливаем SplashViewController как rootViewController
         window?.rootViewController = SplashViewController()
         window?.makeKeyAndVisible()
+        
     }
     
     
