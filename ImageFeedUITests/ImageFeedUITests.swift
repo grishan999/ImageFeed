@@ -9,23 +9,13 @@ import XCTest
 
 final class ImageFeedUITests: XCTestCase {
     
-    private let app = XCUIApplication() // переменная приложения
+    private let app = XCUIApplication()
     
     override func  setUpWithError() throws {
         continueAfterFailure = false
         
-        // Очищаем Keychain
-        let secItemClasses = [kSecClassGenericPassword, kSecClassInternetPassword, kSecClassCertificate, kSecClassKey, kSecClassIdentity]
-        for secItemClass in secItemClasses {
-            let dict: [String: Any] = [kSecClass as String: secItemClass]
-            SecItemDelete(dict as CFDictionary)
-        }
-        
-        // Запускаем приложение
-        app.terminate()
         app.launch()
     }
-    
     
     func testAuth() throws {
         app.buttons["Auth"].tap()
