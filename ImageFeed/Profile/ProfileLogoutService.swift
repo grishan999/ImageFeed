@@ -18,7 +18,7 @@ final class ProfileLogoutService {
         cleanProfilePhoto()
         cleanProfileData()
         cleanImagesList()
-        navigateToAuthView ()
+        navigateToAuthView()
     }
     
     private func cleanCookies() {
@@ -38,6 +38,7 @@ final class ProfileLogoutService {
     }
     
     private func cleanProfileData() {
+        OAuth2TokenStorage.shared.token = nil 
         ProfileService.shared.cleanProfileData()
     }
     

@@ -87,6 +87,7 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         ])
         
         exitButton.setImage(UIImage(named: "Exit"), for: .normal)
+        exitButton.accessibilityIdentifier = "exitButton"
         exitButton.translatesAutoresizingMaskIntoConstraints = false
         exitButton.addTarget(self, action: #selector(exitButtonTapped), for: .touchUpInside)
         view.addSubview(exitButton)
@@ -99,6 +100,7 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         ])
         
         nameLabel.textColor = UIColor(named: "YP White")
+        nameLabel.accessibilityIdentifier = "nameLabel"
         nameLabel.font = UIFont.systemFont(ofSize: 23, weight: .bold)
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(nameLabel)
@@ -110,6 +112,7 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         ])
         
         usernameLabel.textColor = UIColor(named: "YP Grey")
+        usernameLabel.accessibilityIdentifier = "usernameLabel"
         usernameLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         usernameLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(usernameLabel)
@@ -120,6 +123,7 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         ])
         
         descriptionLabel.textColor = UIColor(named: "YP White")
+        descriptionLabel.accessibilityIdentifier = "descriptionLabel"
         descriptionLabel.numberOfLines = 0
         descriptionLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
