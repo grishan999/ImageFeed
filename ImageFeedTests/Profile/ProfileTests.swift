@@ -12,14 +12,14 @@ final class ProfileTests: XCTestCase {
     func testViewControllerCallsViewDidLoad() {
         // given
         let profilePresenter = ProfilePresenterSpy()
-            let profileController = ProfileViewController()
-            profileController.presenter = profilePresenter
-            
-            // when
-            profileController.viewDidLoad()
-            
-            // then
-            XCTAssertTrue(profilePresenter.viewDidLoadCalled)
+        let profileController = ProfileViewController()
+        profileController.presenter = profilePresenter
+        
+        // when
+        profileController.viewDidLoad()
+        
+        // then
+        XCTAssertTrue(profilePresenter.viewDidLoadCalled)
     }
     
     func testViewControllerCallsDidTapExitButton() {
@@ -35,8 +35,8 @@ final class ProfileTests: XCTestCase {
         // then
         XCTAssertTrue(profilePresenter.didTapExitButtonCalled)
     }
-
-
+    
+    
     func testPresenterPresentsAlert() {
         // given
         let profilePresenter = ProfilePresenterSpy()

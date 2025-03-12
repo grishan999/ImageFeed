@@ -76,11 +76,11 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
     }
 
     func getPhoto(at index: Int) -> Photo {
-        return photos[index]
+        photos[index]
     }
 
     func getPhotosCount() -> Int {
-        return photos.count
+        photos.count
     }
 
     private func updatePhotos() {

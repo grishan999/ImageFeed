@@ -12,6 +12,7 @@ public protocol WebViewPresenterProtocol {
     func viewDidLoad()
     func didUpdateProgressValue(_ newValue: Double)
     func handleAuthorizationCode(from url: URL) -> String?
+    func makeOAuthTokenRequest(code: String) -> URLRequest?
 }
 
 final class WebViewPresenter: WebViewPresenterProtocol {
@@ -25,14 +26,13 @@ final class WebViewPresenter: WebViewPresenterProtocol {
     
     func viewDidLoad() {
         
-        guard let request = authHelper.authRequest() else { return }
-        
-        guard var urlComponents = URLComponents(string: Constants.unsplashAuthorizeURLString) else {
+        guard let request = authHelper.createAuthURLRequest(),
+              var urlComponents = URLComponents(string: Constants.unsplashAuthorizeURLString) else {
             return
         }
         
         func code(from url: URL) -> String? {
-            authHelper.code(from: url)
+            authHelper.getCode(from: url)
         }
         
         urlComponents.queryItems = [
@@ -41,10 +41,6 @@ final class WebViewPresenter: WebViewPresenterProtocol {
             URLQueryItem(name: "response_type", value: "code"),
             URLQueryItem(name: "scope", value: Constants.accessScope)
         ]
-        
-        guard let url = urlComponents.url else {
-            return
-        }
         
         didUpdateProgressValue(0)
         view?.load(request: request)
@@ -72,4 +68,40 @@ final class WebViewPresenter: WebViewPresenterProtocol {
         return codeItem.value
     }
     
+    func makeOAuthTokenRequest(code: String) -> URLRequest? {
+        guard let baseURL = URL(string: "https://unsplash.com") else {
+            print("Error: Unable to create base URL")
+            return nil
+        }
+        print(" Base URL successfully created: \(baseURL)")
+        
+        let tokenPath = "/oauth/token"
+        guard var urlComponents = URLComponents(string: baseURL.absoluteString + tokenPath) else {
+            print("Error: Unable to create URL components")
+            return nil
+        }
+        print("URLComponents successfully created: \(urlComponents)")
+        
+        urlComponents.queryItems = [
+            URLQueryItem(name: "client_id", value: Constants.accessKey),
+            URLQueryItem(name: "client_secret", value: Constants.secretKey),
+            URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
+            URLQueryItem(name: "code", value: code),
+            URLQueryItem(name: "grant_type", value: "authorization_code")
+        ]
+        print("Query items successfully added: \(urlComponents.queryItems ?? [])")
+        
+        guard let url = urlComponents.url else {
+            print("Error: Unable to create URL")
+            return nil
+        }
+        print(" Final URL successfully created: \(url)")
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        print("URLRequest successfully created: \(request)")
+        
+        return request
+    }
 }

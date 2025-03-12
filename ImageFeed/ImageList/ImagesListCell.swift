@@ -30,7 +30,7 @@ final class ImagesListCell: UITableViewCell {
         }
     }
 
-    @IBAction func likeButtonClicked(_ sender: Any) {
+    @IBAction private func likeButtonClicked(_ sender: Any) {
         delegate?.imageListCellDidTapLike(self)
     }
 }
