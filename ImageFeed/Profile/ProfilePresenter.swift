@@ -20,9 +20,11 @@ final class ProfilePresenter: ProfilePresenterProtocol {
     private let logoutService: ProfileLogoutService
     private var profileImageServiceObserver: NSObjectProtocol?
     
-    init(profileService: ProfileService = .shared,
-         profileImageService: ProfileImageService = .shared,
-         logoutService: ProfileLogoutService = .shared) {
+    init(
+        profileService: ProfileService = .shared,
+        profileImageService: ProfileImageService = .shared,
+        logoutService: ProfileLogoutService = .shared
+    ) {
         self.profileService = profileService
         self.profileImageService = profileImageService
         self.logoutService = logoutService
@@ -61,7 +63,9 @@ final class ProfilePresenter: ProfilePresenterProtocol {
                     self?.view?.updateUI(with: profile)
                     self?.fetchProfileImageURL(username: profile.username)
                 case .failure(let error):
-                    print("Ошибка загрузки профиля: \(error.localizedDescription)")
+                    print(
+                        "Ошибка загрузки профиля: \(error.localizedDescription)"
+                    )
                 }
             }
         }
@@ -69,7 +73,8 @@ final class ProfilePresenter: ProfilePresenterProtocol {
     
     private func fetchProfileImageURL(username: String) {
         print("Загрузка URL аватара для пользователя: \(username)")
-        profileImageService.fetchProfileImageURL(username: username) { [weak self] result in
+        profileImageService.fetchProfileImageURL(username: username) {
+            [weak self] result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let urlString):
@@ -77,10 +82,14 @@ final class ProfilePresenter: ProfilePresenterProtocol {
                     if let url = URL(string: urlString) {
                         self?.updateAvatar(with: url)
                     } else {
-                        print("Ошибка: не удалось создать URL из строки \(urlString)")
+                        print(
+                            "Ошибка: не удалось создать URL из строки \(urlString)"
+                        )
                     }
                 case .failure(let error):
-                    print("Ошибка загрузки URL аватара: \(error.localizedDescription)")
+                    print(
+                        "Ошибка загрузки URL аватара: \(error.localizedDescription)"
+                    )
                 }
             }
         }
@@ -92,7 +101,8 @@ final class ProfilePresenter: ProfilePresenterProtocol {
     
     private func updateAvatar() {
         guard let profileImageURL = profileImageService.avatarURL,
-              let url = URL(string: profileImageURL) else { return }
+              let url = URL(string: profileImageURL)
+        else { return }
         view?.updateAvatar(with: url)
     }
     
@@ -107,11 +117,13 @@ final class ProfilePresenter: ProfilePresenterProtocol {
             preferredStyle: .alert
         )
         
-        let yesButton = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
+        let yesButton = UIAlertAction(title: "Да", style: .default) {
+            [weak self] _ in
             self?.performLogout()
         }
         
-        let noButton = UIAlertAction(title: "Нет", style: .default, handler: nil)
+        let noButton = UIAlertAction(
+            title: "Нет", style: .default, handler: nil)
         
         alert.addAction(yesButton)
         alert.addAction(noButton)

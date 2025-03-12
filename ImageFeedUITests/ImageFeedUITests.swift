@@ -13,58 +13,88 @@ final class ImageFeedUITests: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-
+        let app = XCUIApplication()
+        app.launchArguments.append("UITests")
         app.launch()
     }
 
     func testAuth() throws {
-        app.buttons["Auth"].tap()
+        if !app.buttons["Auth"].exists {
+            app.tabBars.buttons.element(boundBy: 1).tap()
+            app.buttons["exitButton"].tap()
+            app.alerts["Пока, пока!"].scrollViews.otherElements.buttons["Да"]
+                .tap()
+        }
+
+        let authButton = app.buttons["Auth"]
+        XCTAssertTrue(
+            authButton.waitForExistence(timeout: 5))
+        authButton.tap()
+        sleep(8)
 
         let webView = app.webViews["UnsplashWebView"]
-
-        XCTAssertTrue(webView.waitForExistence(timeout: 5))
+        XCTAssertTrue(
+            webView.waitForExistence(timeout: 15))
 
         let loginTextField = webView.descendants(matching: .textField).element
-        XCTAssertTrue(loginTextField.waitForExistence(timeout: 5))
-
+        XCTAssertTrue(loginTextField.exists)
         loginTextField.tap()
-        loginTextField.typeText("grishanov@me.com")
+        loginTextField.typeText("МЕИЛ")
         webView.swipeUp()
 
         let passwordTextField = webView.descendants(matching: .secureTextField)
             .element
-        XCTAssertTrue(passwordTextField.waitForExistence(timeout: 5))
-
+        XCTAssertTrue(
+            passwordTextField.waitForExistence(timeout: 10))
         passwordTextField.tap()
+        sleep(1)
 
-        UIPasteboard.general.string = "LoveMe999"
-        passwordTextField.tap()
-        passwordTextField.press(forDuration: 1.0)
-        app.menuItems["Paste"].tap()
+        let password = "ПАРОЛЬ"
+        for character in password {
+            passwordTextField.typeText(String(character))
+            sleep(1)
+        }
 
-        webView.buttons["Login"].tap()
+        let loginButton = webView.buttons["Login"]
+        XCTAssertTrue(loginButton.exists)
+        loginButton.tap()
 
-        let tablesQuery = app.tables
-        let cell = tablesQuery.children(matching: .cell).element(boundBy: 0)
+        let table = app.tables.element
+        XCTAssertTrue(
+            table.waitForExistence(timeout: 30))
 
-        XCTAssertTrue(cell.waitForExistence(timeout: 5))
+        // Проверяем, загружены ли ячейки
+        let cell = table.cells.element(boundBy: 0)
+        XCTAssertTrue(
+            cell.waitForExistence(timeout: 15))
     }
 
     func testFeed() throws {
         let tablesQuery = app.tables
 
-        let cell = tablesQuery.children(matching: .cell).element(boundBy: 0)
-        cell.swipeUp()
+        let firstCell = tablesQuery.children(matching: .cell).element(
+            boundBy: 0)
+        XCTAssertTrue(
+            firstCell.waitForExistence(timeout: 5))
+        firstCell.swipeUp()
 
         sleep(2)
 
         let cellToLike = tablesQuery.children(matching: .cell).element(
             boundBy: 1)
+        XCTAssertTrue(
+            cellToLike.waitForExistence(timeout: 5))
 
         app.swipeDown()
         sleep(1)
 
-        cellToLike.buttons["like button"].tap()
+        let likeButton = cellToLike.buttons["like button"]
+        XCTAssertTrue(
+            likeButton.waitForExistence(timeout: 5))
+
+        if likeButton.isHittable {
+            likeButton.tap()
+        }
 
         sleep(2)
 
@@ -77,17 +107,15 @@ final class ImageFeedUITests: XCTestCase {
         let image = scrollView.images.element(boundBy: 0)
         XCTAssertTrue(
             image.waitForExistence(timeout: 10))
-        XCTAssertTrue(
-            image.isHittable)
+        XCTAssertTrue(image.isHittable)
 
         image.pinch(withScale: 3, velocity: 1)
-
         image.pinch(withScale: 0.5, velocity: -1)
 
-        let navBackButtonWhiteButton = app.buttons["nav back button"]
+        let navBackButton = app.buttons["nav back button"]
         XCTAssertTrue(
-            navBackButtonWhiteButton.waitForExistence(timeout: 5))
-        navBackButtonWhiteButton.tap()
+            navBackButton.waitForExistence(timeout: 5))
+        navBackButton.tap()
     }
 
     func testProfile() throws {

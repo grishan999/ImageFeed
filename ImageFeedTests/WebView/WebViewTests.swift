@@ -5,14 +5,18 @@
 //  Created by Ilya Grishanov on 07.03.2025.
 //
 
-@testable import ImageFeed
 import XCTest
+
+@testable import ImageFeed
 
 final class WebViewTests: XCTestCase {
     func testViewControllerCallsViewDidLoad() {
         //given
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let viewController = storyboard.instantiateViewController(withIdentifier: "WebViewViewController") as! WebViewViewController
+        let viewController =
+            storyboard.instantiateViewController(
+                withIdentifier: "WebViewViewController")
+            as! WebViewViewController
         let presenter = WebViewPresenterSpy()
         viewController.presenter = presenter
         presenter.view = viewController
@@ -21,7 +25,7 @@ final class WebViewTests: XCTestCase {
         _ = viewController.view
 
         //then
-        XCTAssertTrue(presenter.viewDidLoadCalled) //behaviour verification
+        XCTAssertTrue(presenter.viewDidLoadCalled)  //behaviour verification
     }
 
     func testPresenterCallsLoadRequest() {
@@ -54,12 +58,12 @@ final class WebViewTests: XCTestCase {
 
     func testProgressHiddenWhenOne() {
         //given
-        let authHelper = AuthHelper() //Dummy
+        let authHelper = AuthHelper()  //Dummy
         let presenter = WebViewPresenter(authHelper: authHelper)
         let progress: Float = 1.0
 
         //when
-        let shouldHideProgress = presenter.shouldHideProgress(for: progress) // return value verification
+        let shouldHideProgress = presenter.shouldHideProgress(for: progress) 
 
         //then
         XCTAssertTrue(shouldHideProgress)
@@ -87,8 +91,11 @@ final class WebViewTests: XCTestCase {
 
     func testCodeFromURL() {
         //given
-        var urlComponents = URLComponents(string: "https://unsplash.com/oauth/authorize/native")!
-        urlComponents.queryItems = [URLQueryItem(name: "code", value: "test code")]
+        var urlComponents = URLComponents(
+            string: "https://unsplash.com/oauth/authorize/native")!
+        urlComponents.queryItems = [
+            URLQueryItem(name: "code", value: "test code")
+        ]
         let url = urlComponents.url!
         let authHelper = AuthHelper()
 

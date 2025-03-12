@@ -5,8 +5,8 @@
 //  Created by Ilya Grishanov on 27.12.2024.
 //
 
-import UIKit
 import Kingfisher
+import UIKit
 
 protocol ProfileViewControllerProtocol: AnyObject {
     func updateUI(with profile: Profile)
@@ -14,7 +14,9 @@ protocol ProfileViewControllerProtocol: AnyObject {
     func presentAlert(_ alert: UIAlertController)
 }
 
-final class ProfileViewController: UIViewController, ProfileViewControllerProtocol {
+final class ProfileViewController: UIViewController,
+                                   ProfileViewControllerProtocol
+{
     private let profileImage = UIImageView()
     private let exitButton = UIButton()
     let nameLabel = UILabel()
@@ -48,7 +50,8 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
     func updateUI(with profile: Profile) {
         print("Обновление UI с профилем: \(profile)")
         DispatchQueue.main.async {
-            self.nameLabel.text = profile.name.isEmpty ? "No Name" : profile.name
+            self.nameLabel.text =
+            profile.name.isEmpty ? "No Name" : profile.name
             self.usernameLabel.text = profile.loginName
             self.descriptionLabel.text = profile.bio ?? "No Bio"
         }
@@ -57,7 +60,9 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
     func updateAvatar(with url: URL) {
         print("Обновление аватара с URL: \(url)")
         DispatchQueue.main.async {
-            let processor = BlurImageProcessor(blurRadius: 5.0) |> RoundCornerImageProcessor(cornerRadius: 20)
+            let processor =
+            BlurImageProcessor(blurRadius: 5.0)
+            |> RoundCornerImageProcessor(cornerRadius: 20)
             self.profileImage.kf.setImage(
                 with: url,
                 placeholder: UIImage(named: "UserPhoto"),
@@ -82,21 +87,26 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         NSLayoutConstraint.activate([
             profileImage.heightAnchor.constraint(equalToConstant: 70),
             profileImage.widthAnchor.constraint(equalToConstant: 70),
-            profileImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
-            profileImage.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            profileImage.topAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
+            profileImage.leadingAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
         ])
         
         exitButton.setImage(UIImage(named: "Exit"), for: .normal)
         exitButton.accessibilityIdentifier = "exitButton"
         exitButton.translatesAutoresizingMaskIntoConstraints = false
-        exitButton.addTarget(self, action: #selector(exitButtonTapped), for: .touchUpInside)
+        exitButton.addTarget(
+            self, action: #selector(exitButtonTapped), for: .touchUpInside)
         view.addSubview(exitButton)
         
         NSLayoutConstraint.activate([
             exitButton.heightAnchor.constraint(equalToConstant: 24),
             exitButton.widthAnchor.constraint(equalToConstant: 24),
-            exitButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -26),
-            exitButton.centerYAnchor.constraint(equalTo: profileImage.centerYAnchor),
+            exitButton.trailingAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -26),
+            exitButton.centerYAnchor.constraint(
+                equalTo: profileImage.centerYAnchor),
         ])
         
         nameLabel.textColor = UIColor(named: "YP White")
@@ -106,9 +116,12 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         view.addSubview(nameLabel)
         
         NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 8),
-            nameLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            nameLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            nameLabel.topAnchor.constraint(
+                equalTo: profileImage.bottomAnchor, constant: 8),
+            nameLabel.leadingAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            nameLabel.trailingAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
         ])
         
         usernameLabel.textColor = UIColor(named: "YP Grey")
@@ -118,8 +131,10 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         view.addSubview(usernameLabel)
         
         NSLayoutConstraint.activate([
-            usernameLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 8),
-            usernameLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            usernameLabel.topAnchor.constraint(
+                equalTo: nameLabel.bottomAnchor, constant: 8),
+            usernameLabel.leadingAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
         ])
         
         descriptionLabel.textColor = UIColor(named: "YP White")
@@ -130,9 +145,12 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         view.addSubview(descriptionLabel)
         
         NSLayoutConstraint.activate([
-            descriptionLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: 8),
-            descriptionLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            descriptionLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            descriptionLabel.topAnchor.constraint(
+                equalTo: usernameLabel.bottomAnchor, constant: 8),
+            descriptionLabel.leadingAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            descriptionLabel.trailingAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
         ])
     }
 }

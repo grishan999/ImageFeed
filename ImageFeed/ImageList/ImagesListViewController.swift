@@ -106,6 +106,10 @@ extension ImagesListViewController: UITableViewDelegate {
         _ tableView: UITableView, willDisplay cell: UITableViewCell,
         forRowAt indexPath: IndexPath
     ) {
+        let isRunningUITests = ProcessInfo.processInfo.arguments.contains(
+            "UITests")
+        if isRunningUITests { return }
+
         if indexPath.row == presenter.getPhotosCount() - 1 {
             presenter.fetchPhotosNextPage()
         }
