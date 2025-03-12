@@ -99,17 +99,15 @@ final class SplashViewController: UIViewController {
 
 extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController, withCode code: String) {
-        vc.dismiss(animated: true) {
-            OAuth2Service.shared.fetchOAuthToken(code) { [weak self] result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let token):
-                        self?.storage.token = token
-                        print("Token successfully saved: \(token)")
-                        self?.switchToTabBarController()
-                    case .failure(let error):
-                        print("Failed to fetch token: \(error)")
-                    }
+        OAuth2Service.shared.fetchOAuthToken(code) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let token):
+                    self?.storage.token = token
+                    print("Token successfully saved: \(token)")
+                    self?.switchToTabBarController()
+                case .failure(let error):
+                    print("Failed to fetch token: \(error)")
                 }
             }
         }

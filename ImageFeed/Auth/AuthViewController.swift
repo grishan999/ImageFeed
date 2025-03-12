@@ -87,7 +87,12 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 switch result {
                 case .success(let token):
                     self.delegate?.didAuthenticate(self, withCode: code)
-                    self.dismiss(animated: true)
+                    self.dismiss(animated: true) {
+                        let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+                        let window = scene?.windows.first
+                        window?.rootViewController = SplashViewController()
+                        window?.makeKeyAndVisible()
+                    }
                 case .failure(let error):
                     print("Error fetching token: \(error)")
                     self.showErrorAlert() // вызвать алерт в случае ошибки
