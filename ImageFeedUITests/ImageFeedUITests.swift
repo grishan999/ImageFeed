@@ -39,21 +39,19 @@ final class ImageFeedUITests: XCTestCase {
         let loginTextField = webView.descendants(matching: .textField).element
         XCTAssertTrue(loginTextField.exists)
         loginTextField.tap()
-        loginTextField.typeText("grishanov@me.com")
+        loginTextField.typeText("МЫЛО")
         webView.swipeUp()
         
-        let passwordTextField = webView.descendants(matching: .secureTextField)
-            .element
-        XCTAssertTrue(
-            passwordTextField.waitForExistence(timeout: 10))
+        let passwordTextField = webView.descendants(matching: .secureTextField).element
+        XCTAssertTrue(passwordTextField.waitForExistence(timeout: 10))
         passwordTextField.tap()
         sleep(1)
-        
-        let password = "LolKek999"
-        for character in password {
-            passwordTextField.typeText(String(character))
-            sleep(1)
-        }
+
+        UIPasteboard.general.string = "ПАРОЛЬ"
+
+        passwordTextField.press(forDuration: 1.5)
+        XCTAssertTrue(app.menuItems["Paste"].waitForExistence(timeout: 5))
+        app.menuItems["Paste"].tap()
         
         let loginButton = webView.buttons["Login"]
         XCTAssertTrue(loginButton.exists)
@@ -62,8 +60,7 @@ final class ImageFeedUITests: XCTestCase {
         let table = app.tables.element
         XCTAssertTrue(
             table.waitForExistence(timeout: 30))
-        
-        // Проверяем, загружены ли ячейки
+    
         let cell = table.cells.element(boundBy: 0)
         XCTAssertTrue(
             cell.waitForExistence(timeout: 15))
