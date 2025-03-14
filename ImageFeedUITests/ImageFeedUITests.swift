@@ -39,7 +39,7 @@ final class ImageFeedUITests: XCTestCase {
         let loginTextField = webView.descendants(matching: .textField).element
         XCTAssertTrue(loginTextField.exists)
         loginTextField.tap()
-        loginTextField.typeText("МЫЛО")
+        loginTextField.typeText("МЕИЛ")
         webView.swipeUp()
         
         let passwordTextField = webView.descendants(matching: .secureTextField).element
